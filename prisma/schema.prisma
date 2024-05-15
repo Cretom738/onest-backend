@@ -8,13 +8,45 @@ datasource db {
 }
 
 model User {
-  id              Int      @id @default(autoincrement())
-  fullName        String   @map("full_name") @db.VarChar(200)
-  email           String   @unique @db.VarChar(200)
+  id              Int       @id @default(autoincrement())
+  fullName        String    @map("full_name") @db.VarChar(200)
+  email           String    @unique @db.VarChar(200)
   password        String
-  isEmailVerified Boolean  @default(false) @map("is_email_verified")
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  isEmailVerified Boolean   @default(false) @map("is_email_verified")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  roles           ERole[]
+  sessions        Session[]
 
   @@map("users")
 }
+
+model Session {
+  id                 Int                 @id @default(autoincrement())
+  userId             Int                 @map("user_id")
+  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deviceId           Int                 @unique @map("device_id")
+  refreshToken       String              @unique @map("refresh_token")
+  createdAt          DateTime            @default(now()) @map("created_at")
+  updatedAt          DateTime            @updatedAt @map("updated_at")
+  expiredAt          DateTime            @map("expired_at")
+  sessionAccessToken SessionAccessToken?
+
+  @@map("sessions")
+}
+
+model SessionAccessToken {
+  sessionId     Int?     @unique @map("session_id")
+  session       Session? @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  accessTokenId Int      @unique @map("access_token_id")
+  createdAt     DateTime @default(now()) @map("created_at")
+  expiredAt     DateTime @map("expired_at")
+
+  @@map("session_access_tokens")
+}
+
+enum ERole {
+  USER
+  BUSINESS
+  ADMIN
+} 

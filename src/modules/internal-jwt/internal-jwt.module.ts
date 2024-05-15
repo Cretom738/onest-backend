@@ -7,6 +7,7 @@ import { getJwtConfig } from 'src/libs/config/jwt.config';
   imports: [
     JwtModule.registerAsync(getJwtConfig())
   ],
-  providers: [InternalJwtService]
+  providers: [InternalJwtService],
+  exports: [InternalJwtService]
 })
 export class InternalJwtModule {}

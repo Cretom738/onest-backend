@@ -3,11 +3,12 @@ import { IAuthService } from './auth';
 import { AuthDto } from 'src/libs/dtos/auth.dto';
 import { CreateUserDto } from 'src/libs/dtos/create-user.dto';
 import { IRefresh } from 'src/libs/interfaces/refresh.interface';
-import { AuthSuccessDto } from 'src/libs/services/auth-success.dto';
+import { AuthSuccessDto } from 'src/libs/dtos/auth-success.dto';
 import { UsersService } from '../users/users.service';
 import { ArgonService } from 'src/libs/services/argon/argon.service';
 import { InternalJwtService } from '../internal-jwt/internal-jwt.service';
 import { randomInt } from 'crypto';
+import { SessionsService } from 'src/modules/sessions/sessions.service';
 
 @Injectable()
 export class AuthService implements IAuthService {
@@ -15,18 +16,30 @@ export class AuthService implements IAuthService {
     constructor(
         private readonly usersService: UsersService,
         private readonly argon: ArgonService,
-        private readonly jwt: InternalJwtService
+        private readonly jwt: InternalJwtService,
+        private readonly sessionsService: SessionsService
     ) {}
 
     async register({ email, fullName, password }: CreateUserDto): Promise<AuthSuccessDto> {
         const hashedPassword: string = await this.argon.hash(password);
+
         const { id, roles } = await this.usersService.createUser({
             email,
             fullName,
             password: hashedPassword,
         });
+
         const deviceId = randomInt(999999);
+
         const { accessToken, refreshToken, accessTokenId } = await this.jwt.generateTokenPairs({ userId: id, roles }, deviceId);
+
+        await this.sessionsService.createSession({  
+            userId: id,
+            deviceId,
+            refreshToken,
+            accessTokenId
+        });
+
         return {
             accessToken,
             refreshToken
@@ -35,12 +48,24 @@ export class AuthService implements IAuthService {
 
     async login({ email, password }: AuthDto): Promise<AuthSuccessDto> {
         const { id, roles, hashedPassword } = await this.usersService.findUserByEmail(email);
+
         const isPasswordValid = await this.argon.compare(password, hashedPassword);
+
         if (!isPasswordValid) {
             throw new UnauthorizedException('auth.invalid_credentials');
         }
+
         const deviceId = randomInt(999999);
+
         const { accessToken, refreshToken, accessTokenId } = await this.jwt.generateTokenPairs({ userId: id, roles }, deviceId);
+        
+        await this.sessionsService.createSession({  
+            userId: id,
+            deviceId,
+            refreshToken,
+            accessTokenId
+        });
+
         return {
             accessToken,
             refreshToken
@@ -48,7 +73,7 @@ export class AuthService implements IAuthService {
     }
 
     async logout(deviceId: number): Promise<void> {
-        throw new Error('Method not implemented.');
+        await this.sessionsService.deleteSession(deviceId);
     }
 
     async refresh(data: IRefresh): Promise<AuthSuccessDto> {

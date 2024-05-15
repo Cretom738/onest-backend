@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { IUsersService } from './users';
 import { CreateUserDto } from 'src/libs/dtos/create-user.dto';
 import { AuthDto } from 'src/libs/dtos/auth.dto';
-import { PrismaService } from 'src/libs/services/prisma.service';
+import { PrismaService } from 'src/libs/services/prisma/prisma.service';
 import { ERole } from '.prisma/client';
 import { NotFoundError } from 'rxjs';
 
