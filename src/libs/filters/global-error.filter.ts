@@ -1,5 +1,5 @@
 
-import { ArgumentsHost, BadRequestException, Catch, ExceptionFilter, HttpException, HttpStatus, Logger, NotFoundException } from '@nestjs/common';
+import { ArgumentsHost, BadRequestException, Catch, ConflictException, ExceptionFilter, HttpException, HttpStatus, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { Response } from 'express';
   
@@ -19,9 +19,9 @@ export class GlobalErrorFilter implements ExceptionFilter {
             nestException = exception;
         }
 
-        if (exception instanceof PrismaClientKnownRequestError 
-            && exception.code === 'P2025') {
-            nestException = new NotFoundException('not.found');
+        if (exception instanceof PrismaClientKnownRequestError) {
+            if (exception.code === 'P2025') nestException = new NotFoundException('not.found');
+            if (exception.code === 'P2002') nestException = new ConflictException('already.exist'); 
         }
 
         response.status(nestException.getStatus()).json(nestException.getResponse());
