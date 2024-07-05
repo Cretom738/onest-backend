@@ -6,9 +6,9 @@ export class AuthGuard implements CanActivate {
     
     canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
         const request = context.switchToHttp().getRequest();
-        if (!request['isUserAthenticated']) {
-            throw new UnauthorizedException();
+        if (!request['isUserAuthenticated']) {
+            throw new UnauthorizedException('not.authenticated');
         }
-        return request['isUserAthenticated'];
+        return request['isUserAuthenticated'];
     }
 }

@@ -1,11 +1,15 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { ISessionsService } from './sessions';
 import { ISession } from 'src/libs/interfaces/session.interface';
-import { PrismaService } from 'src/libs/services/prisma/prisma.service';
+import { PrismaService } from 'src/libs/services/prisma.service';
 import { Session } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
-import { ArgonService } from 'src/libs/services/argon/argon.service';
+import { ArgonService } from 'src/libs/services/argon.service';
 import { PrismaClientKnownRequestError, PrismaClientUnknownRequestError } from '@prisma/client/runtime/library';
+import { Redis } from 'ioredis';
+import { InjectRedis } from '@nestjs-modules/ioredis';
+import { EJwtTokenTypes } from 'src/libs/types/type';
+import { getBlacklistedTokenKey } from 'src/libs/helpers/helper';
 
 @Injectable()
 export class SessionsService implements ISessionsService {
@@ -15,10 +19,12 @@ export class SessionsService implements ISessionsService {
     constructor(
         private readonly prisma: PrismaService,
         private readonly configService: ConfigService,
-        private readonly argon: ArgonService
+        private readonly argon: ArgonService,
+        @InjectRedis() private readonly redis: Redis
     ) {}
 
     async createSession({ userId, deviceId, refreshToken, accessTokenId }: ISession): Promise<void> {
+
         const userSessions: Session[] = await this.prisma.session.findMany({
             where: {
                 userId
@@ -38,12 +44,13 @@ export class SessionsService implements ISessionsService {
     }
 
     async updateSession({ userId, deviceId, refreshToken, accessTokenId }: ISession, oldAccessTokenId: number): Promise<void> {
-        //TODO: Add black list token
+
         const hashedRefreshToken: string = await this.argon.hash(refreshToken);
 
         const { accessExpiredAt, refreshExpiredAt } = this.getExpirationDatePairs();
         
         let session: { id: number };
+        
         try {
             session = await this.prisma.session.update({
                 where: {
@@ -83,20 +90,36 @@ export class SessionsService implements ISessionsService {
                 expiredAt: accessExpiredAt
             }
         });
+
+        await Promise.all([
+            await this.blacklistToken(oldAccessTokenId, EJwtTokenTypes.ACCESS_TOKEN),
+            await this.blacklistToken(oldAccessTokenId, EJwtTokenTypes.REFRESH_TOKEN)
+        ]);
         
         this.logger.log(`New access token created for device ${deviceId}`);
     }
 
     async deleteSession(deviceId: number): Promise<void> {
-        await this.prisma.session.delete({
+        
+        const session = await this.prisma.session.delete({
             where: {
                 deviceId
+            },
+            select: {
+                sessionAccessToken: true
             }
         });
-        //TODO: Add black list token
+
+        if (session.sessionAccessToken) {
+            await Promise.all([
+                this.blacklistToken(session.sessionAccessToken.accessTokenId, EJwtTokenTypes.ACCESS_TOKEN),
+                this.blacklistToken(session.sessionAccessToken.accessTokenId, EJwtTokenTypes.REFRESH_TOKEN)
+            ]);
+        }
     }
 
     private async createNewSession({ userId, deviceId, refreshToken, accessTokenId }: ISession): Promise<void> {
+
         const hashedRefreshToken: string = await this.argon.hash(refreshToken);
 
         const { accessExpiredAt, refreshExpiredAt } = this.getExpirationDatePairs();
@@ -118,6 +141,7 @@ export class SessionsService implements ISessionsService {
     }
 
     private getExpirationDatePairs(): { accessExpiredAt: Date, refreshExpiredAt: Date } {
+
         const currentTime: Date = new Date();
 
         const accessExpiredAt: Date = new Date(currentTime.getTime() + this.configService.get('ACCESS_TOKEN_LIFE_TIME') * 1000);
@@ -128,5 +152,10 @@ export class SessionsService implements ISessionsService {
             accessExpiredAt,
             refreshExpiredAt
         }
+    }
+
+    private async blacklistToken(tokenId: number, type: EJwtTokenTypes): Promise<void> {
+
+        await this.redis.set(getBlacklistedTokenKey(tokenId, type), tokenId, 'EX', this.configService.get('ACCESS_TOKEN_LIFE_TIME'));
     }
 }

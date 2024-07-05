@@ -9,6 +9,7 @@ export class GlobalErrorFilter implements ExceptionFilter {
     private readonly logger: Logger = new Logger(GlobalErrorFilter.name);
 
     catch(exception: Error, host: ArgumentsHost): void {
+        
         const response = host.switchToHttp().getResponse<Response>();
 
         this.logger.error(exception.message);

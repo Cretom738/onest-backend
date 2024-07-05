@@ -5,10 +5,11 @@ import { CreateUserDto } from 'src/libs/dtos/create-user.dto';
 import { IRefresh } from 'src/libs/interfaces/refresh.interface';
 import { AuthSuccessDto } from 'src/libs/dtos/auth-success.dto';
 import { UsersService } from '../users/users.service';
-import { ArgonService } from 'src/libs/services/argon/argon.service';
+import { ArgonService } from 'src/libs/services/argon.service';
 import { InternalJwtService } from '../internal-jwt/internal-jwt.service';
 import { randomInt } from 'crypto';
 import { SessionsService } from 'src/modules/sessions/sessions.service';
+import { EJwtTokenTypes } from 'src/libs/types/type';
 
 @Injectable()
 export class AuthService implements IAuthService {
@@ -21,6 +22,7 @@ export class AuthService implements IAuthService {
     ) {}
 
     async register({ email, fullName, password }: CreateUserDto): Promise<AuthSuccessDto> {
+
         const hashedPassword: string = await this.argon.hash(password);
 
         const { id, roles } = await this.usersService.createUser({
@@ -47,6 +49,7 @@ export class AuthService implements IAuthService {
     }
 
     async login({ email, password }: AuthDto): Promise<AuthSuccessDto> {
+
         const { id, roles, hashedPassword } = await this.usersService.findUserByEmail(email);
 
         const isPasswordValid = await this.argon.compare(password, hashedPassword);
@@ -73,10 +76,25 @@ export class AuthService implements IAuthService {
     }
 
     async logout(deviceId: number): Promise<void> {
+
         await this.sessionsService.deleteSession(deviceId);
     }
 
-    async refresh(data: IRefresh): Promise<AuthSuccessDto> {
-        throw new Error('Method not implemented.');
+    async refresh(incomingRefreshToken: string): Promise<AuthSuccessDto> {
+
+        const { isTokenValid, payload } = await this.jwt.verifyToken(incomingRefreshToken, EJwtTokenTypes.REFRESH_TOKEN);
+        
+        if (!isTokenValid) {
+            throw new UnauthorizedException('auth.session.expired.or.invalid.token');
+        }
+
+        const { refreshToken, accessToken, accessTokenId } = await this.jwt.generateTokenPairs({ userId: payload.userId, roles: payload.roles }, payload.deviceId);
+
+        await this.sessionsService.updateSession({ userId: payload.userId, deviceId: payload.deviceId, refreshToken, accessTokenId }, payload.accessTokenId);
+
+        return {
+            refreshToken,
+            accessToken
+        }
     }
 }

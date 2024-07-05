@@ -11,5 +11,5 @@ export interface IAuthService {
 
     logout(deviceId: number): Promise<void>;
 
-    refresh(data: IRefresh): Promise<AuthSuccessDto>;
+    refresh(refreshToken: string): Promise<AuthSuccessDto>;
 }

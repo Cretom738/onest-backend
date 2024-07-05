@@ -2,6 +2,7 @@ version: "3.8"
 
 volumes:
   onest-db-volume:
+  onest-redis-volume:
 
 services:
   onest-db:
@@ -15,6 +16,14 @@ services:
       - onest-db-volume:/var/lib/postgresql/data
     ports: 
       - ${POSTGRES_PORT:-5434}:5432
+  redis:
+    image: redis:latest
+    restart: always
+    command: --requirepass ${REDIS_PASSWORD} --user ${REDIS_USERNAME} on >${REDIS_PASSWORD} --user default off
+    ports:
+      - "${REDIS_PORT}:6379"
+    volumes:
+      - onest-redis-volume:/data
   
 
   

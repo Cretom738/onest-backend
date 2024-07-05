@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { IUsersService } from './users';
 import { CreateUserDto } from 'src/libs/dtos/create-user.dto';
 import { AuthDto } from 'src/libs/dtos/auth.dto';
-import { PrismaService } from 'src/libs/services/prisma/prisma.service';
+import { PrismaService } from 'src/libs/services/prisma.service';
 import { ERole } from '.prisma/client';
 import { NotFoundError } from 'rxjs';
 
@@ -32,14 +32,17 @@ export class UsersService implements IUsersService {
     }
 
     async findUserByEmail(email: string): Promise<{ id: number, roles: ERole[], hashedPassword: string }> {
+        
         const user = await this.prisma.user.findUnique({
             where: {
                 email
             }
         });
+
         if (!user) {
             throw new UnauthorizedException('auth.invalid_credentials');
         }
+
         return {
             id: user.id,
             roles: user.roles,
