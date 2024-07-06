@@ -6,6 +6,8 @@ import { PrismaService } from 'src/libs/services/prisma.service';
 import { ERole } from '.prisma/client';
 import { NotFoundError } from 'rxjs';
 import { ProfileDto } from 'src/libs/dtos/profile.dto';
+import { isArray } from 'class-validator';
+import { SocialMediaDto } from 'src/libs/dtos/social-media.dto';
 
 @Injectable()
 export class UsersService implements IUsersService {
@@ -67,13 +69,14 @@ export class UsersService implements IUsersService {
                 userId
             },
             include: {
-                user: true
+                user: true,
+                socialMedias: true
             }
         });
         return new ProfileDto(profile);
     }
     
-    async updateUserProfile(userId: number, { bio, phone, address, web }: ProfileDto): Promise<void> {
+    async updateUserProfile(userId: number, { bio, phone, address, web, socialMedias }: ProfileDto): Promise<void> {
         
         await this.prisma.profile.update({
             where: {
@@ -85,6 +88,21 @@ export class UsersService implements IUsersService {
                 address,
                 web
             }
-        })
+        });
+        if (Array.isArray(socialMedias)) {
+            await this.prisma.profile.update({
+                where: {
+                    userId
+                },
+                data: {
+                    socialMedias: {
+                        deleteMany: {},
+                        createMany: {
+                            data: socialMedias
+                        }
+                    }
+                }
+            })
+        }
     }
 }

@@ -1,9 +1,10 @@
 import { Prisma } from "@prisma/client";
 
-const profileWithUser = Prisma.validator<Prisma.ProfileDefaultArgs>()({
+const profileWithRelatedTable = Prisma.validator<Prisma.ProfileDefaultArgs>()({
     include: {
-        user: true
+        user: true,
+        socialMedias: true
     }
 });
 
-export type ProfileWithUser = Prisma.ProfileGetPayload<typeof profileWithUser>
+export type ProfileWithRelatedTable = Prisma.ProfileGetPayload<typeof profileWithRelatedTable>

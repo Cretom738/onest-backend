@@ -14,7 +14,7 @@ async function bootstrap() {
     
     app.useGlobalFilters(new GlobalErrorFilter());
   
-    app.useGlobalPipes(new ValidationPipe());
+    app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
   
     if (configService.get('NODE_ENV') !== 'production') {
         

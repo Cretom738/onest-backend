@@ -47,27 +47,28 @@ model SessionAccessToken {
 }
 
 model Profile {
-  id          Int           @id @default(autoincrement())
-  bio         String?
-  phone       String?       @db.VarChar(50)
-  address     String?
-  web         String?
-  userId      Int           @unique @map("user_id")
-  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt   DateTime      @default(now()) @map("created_at")
-  updatedAt   DateTime      @updatedAt @map("updated_at")
-  socialMedia SocialMedia[]
+  id           Int           @id @default(autoincrement())
+  bio          String?
+  phone        String?       @db.VarChar(50)
+  address      String?
+  web          String?
+  userId       Int           @unique @map("user_id")
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+  socialMedias SocialMedia[]
 
   @@map("profiles")
 }
 
 model SocialMedia {
   id        Int                 @id @default(autoincrement())
-  network   ESocialMediaNetwork
+  network   ESocialMediaNetwork 
   url       String
-  profileId Int                 @unique @map("profile_id")
+  profileId Int                 @map("profile_id")
   profile   Profile             @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
+  @@unique([profileId, network])
   @@map("social_medias")
 }
 

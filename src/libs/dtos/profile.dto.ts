@@ -1,7 +1,8 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsOptional, IsPhoneNumber, IsString, Length } from "class-validator";
-import { Profile } from '@prisma/client';
-import { ProfileWithUser } from "../types/prisma.type";
+import { ArrayMaxSize, IsArray, IsOptional, IsPhoneNumber, IsString, Length, Max, Min, ValidateNested } from "class-validator";
+import { ProfileWithRelatedTable } from "../types/prisma.type";
+import { SocialMediaDto } from "./social-media.dto";
+import { Type } from "class-transformer";
 
 export class ProfileDto {
 
@@ -28,12 +29,29 @@ export class ProfileDto {
     
     @ApiProperty()
     readonly email: string;
+    
+    @ApiProperty()
+    readonly fullName: string;
+    
+    @ApiProperty()
+    readonly isEmailVerified: boolean;
 
-    constructor(profile: ProfileWithUser) {
-        this.bio = profile.bio || null;
-        this.phone = profile.phone || null;
-        this.address = profile.address || null;
-        this.web = profile.web || null;
-        this.email = profile.user.email;
+    @ApiProperty({ type: SocialMediaDto, isArray: true })
+    @IsOptional()
+    @IsArray()
+    @ArrayMaxSize(7)
+    @ValidateNested({ each: true })
+    @Type(() => SocialMediaDto)
+    socialMedias: SocialMediaDto[]
+
+    constructor(profile: ProfileWithRelatedTable) {
+        this.bio = profile?.bio || null;
+        this.phone = profile?.phone || null;
+        this.address = profile?.address || null;
+        this.web = profile?.web || null;
+        this.email = profile?.user.email;
+        this.fullName = profile?.user.fullName;
+        this.isEmailVerified = profile?.user.isEmailVerified;
+        this.socialMedias = profile?.socialMedias.map(sm => new SocialMediaDto(sm));
     }
 }
