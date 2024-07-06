@@ -1,10 +1,18 @@
+import { ERole } from "@prisma/client";
 import { CreateUserDto } from "src/libs/dtos/create-user.dto";
+import { ProfileDto } from "src/libs/dtos/profile.dto";
 
 export interface IUsersService {
 
-    createUser(data: CreateUserDto): Promise<any>;
+    createUser(data: CreateUserDto): Promise<{ id: number, roles: ERole[] }>;
 
     findUserById(id: number): Promise<any>;
 
-    findUserByEmail(email: string): Promise<any>;
+    findUserByEmail(email: string): Promise<{ id: number, roles: ERole[], hashedPassword: string }>;
+
+    createUserProfile(userId: number): Promise<void>;
+
+    getUserProfile(userId: number): Promise<ProfileDto>;
+
+    updateUserProfile(userId: number, data: ProfileDto): Promise<void>;
 }

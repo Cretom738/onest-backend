@@ -5,6 +5,7 @@ import { AuthDto } from 'src/libs/dtos/auth.dto';
 import { PrismaService } from 'src/libs/services/prisma.service';
 import { ERole } from '.prisma/client';
 import { NotFoundError } from 'rxjs';
+import { ProfileDto } from 'src/libs/dtos/profile.dto';
 
 @Injectable()
 export class UsersService implements IUsersService {
@@ -21,6 +22,7 @@ export class UsersService implements IUsersService {
                 roles: [ERole.USER]
             }
         });
+        await this.createUserProfile(id);
         return {
             id,
             roles
@@ -48,5 +50,41 @@ export class UsersService implements IUsersService {
             roles: user.roles,
             hashedPassword: user.password
         };
+    }
+    
+    async createUserProfile(userId: number): Promise<void> {
+        
+        await this.prisma.profile.create({
+            data: {
+                userId
+            }
+        });
+    }
+    
+    async getUserProfile(userId: number): Promise<ProfileDto> {
+        const profile = await this.prisma.profile.findUnique({
+            where: {
+                userId
+            },
+            include: {
+                user: true
+            }
+        });
+        return new ProfileDto(profile);
+    }
+    
+    async updateUserProfile(userId: number, { bio, phone, address, web }: ProfileDto): Promise<void> {
+        
+        await this.prisma.profile.update({
+            where: {
+                userId
+            },
+            data: {
+                bio,
+                phone,
+                address,
+                web
+            }
+        })
     }
 }

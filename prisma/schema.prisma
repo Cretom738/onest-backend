@@ -17,6 +17,7 @@ model User {
   updatedAt       DateTime  @updatedAt @map("updated_at")
   roles           ERole[]
   sessions        Session[]
+  profile         Profile?
 
   @@map("users")
 }
@@ -45,8 +46,43 @@ model SessionAccessToken {
   @@map("session_access_tokens")
 }
 
+model Profile {
+  id          Int           @id @default(autoincrement())
+  bio         String?
+  phone       String?       @db.VarChar(50)
+  address     String?
+  web         String?
+  userId      Int           @unique @map("user_id")
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+  socialMedia SocialMedia[]
+
+  @@map("profiles")
+}
+
+model SocialMedia {
+  id        Int                 @id @default(autoincrement())
+  network   ESocialMediaNetwork
+  url       String
+  profileId Int                 @unique @map("profile_id")
+  profile   Profile             @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@map("social_medias")
+}
+
 enum ERole {
   USER
   BUSINESS
   ADMIN
-} 
+}
+
+enum ESocialMediaNetwork {
+  TELEGRAM
+  VK
+  INSTAGRAM
+  OK
+  FACEBOOK
+  X
+  LINKEDIN
+}

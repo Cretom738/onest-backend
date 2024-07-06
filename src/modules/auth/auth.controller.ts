@@ -75,9 +75,7 @@ export class AuthController {
 
         await this.service.logout(deviceId);
 
-        return {
-            success: true
-        };
+        return new SuccessDto();
     }
 
     @Post('refresh')

@@ -7,6 +7,7 @@ import { AuthMiddleware } from '../libs/middlewares/auth.middleware';
 import { InternalJwtModule } from './internal-jwt/internal-jwt.module';
 import { RedisModule } from '@nestjs-modules/ioredis';
 import { getRedisConfig } from 'src/libs/config/redis.config';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -16,7 +17,8 @@ import { getRedisConfig } from 'src/libs/config/redis.config';
   RedisModule.forRootAsync(getRedisConfig()),
   AuthModule,
   SessionsModule,
-  InternalJwtModule
+  InternalJwtModule,
+  UsersModule
   ]
 })
 export class AppModule implements NestModule {
