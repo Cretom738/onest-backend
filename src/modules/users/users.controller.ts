@@ -9,6 +9,7 @@ import { SuccessDto } from 'src/libs/dtos/success-dto';
 import { CommonErrorDto } from 'src/libs/dtos/common-error.dto';
 import { NotFoundError } from 'rxjs';
 import { BadRequestDto } from 'src/libs/dtos/bad-request.dto';
+import { UpdateProfileDto } from 'src/libs/dtos/update-profile.dto';
 
 @Controller('users')
 @ApiTags('Users')
@@ -45,7 +46,7 @@ export class UsersController {
         description: 'Unathorized',
         type: CommonErrorDto
     })
-    async updateUserProfile(@UserInfo() { userId }: IJwtPayload, @Body() data: ProfileDto): Promise<SuccessDto> {
+    async updateUserProfile(@UserInfo() { userId }: IJwtPayload, @Body() data: UpdateProfileDto): Promise<SuccessDto> {
 
         await this.service.updateUserProfile(userId, data);
 

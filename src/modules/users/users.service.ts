@@ -8,6 +8,7 @@ import { NotFoundError } from 'rxjs';
 import { ProfileDto } from 'src/libs/dtos/profile.dto';
 import { isArray } from 'class-validator';
 import { SocialMediaDto } from 'src/libs/dtos/social-media.dto';
+import { UpdateProfileDto } from 'src/libs/dtos/update-profile.dto';
 
 @Injectable()
 export class UsersService implements IUsersService {
@@ -64,6 +65,7 @@ export class UsersService implements IUsersService {
     }
     
     async getUserProfile(userId: number): Promise<ProfileDto> {
+
         const profile = await this.prisma.profile.findUnique({
             where: {
                 userId
@@ -73,10 +75,11 @@ export class UsersService implements IUsersService {
                 socialMedias: true
             }
         });
+
         return new ProfileDto(profile);
     }
     
-    async updateUserProfile(userId: number, { bio, phone, address, web, socialMedias }: ProfileDto): Promise<void> {
+    async updateUserProfile(userId: number, { bio, phone, address, web, socialMedias }: UpdateProfileDto): Promise<void> {
         
         await this.prisma.profile.update({
             where: {
@@ -89,7 +92,9 @@ export class UsersService implements IUsersService {
                 web
             }
         });
+
         if (Array.isArray(socialMedias)) {
+
             await this.prisma.profile.update({
                 where: {
                     userId
@@ -102,7 +107,7 @@ export class UsersService implements IUsersService {
                         }
                     }
                 }
-            })
+            });
         }
     }
 }

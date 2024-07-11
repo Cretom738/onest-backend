@@ -2,20 +2,13 @@ import { ApiProperty } from '@nestjs/swagger';
 import { ESocialMediaNetwork } from '@prisma/client';
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
 import { SocialMedia } from "@prisma/client";
+import { UpdateSocialMediaDto } from './update-social-media.dto';
 
-export class SocialMediaDto {
-
-    @ApiProperty()
-    @IsEnum(ESocialMediaNetwork)
-    network: ESocialMediaNetwork; 
-
-    @ApiProperty()
-    @IsString()
-    @IsNotEmpty()
-    url: string;
+export class SocialMediaDto extends UpdateSocialMediaDto {
 
     constructor(socialMedia: SocialMedia) {
-        this.network = socialMedia?.network;
-        this.url = socialMedia?.url;
+        super();
+        this.network = socialMedia.network;
+        this.url = socialMedia.url;
     }
 }
