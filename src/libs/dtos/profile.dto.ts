@@ -26,5 +26,6 @@ export class ProfileDto extends UpdateProfileDto {
         this.fullName = profile.user.fullName;
         this.isEmailVerified = profile.user.isEmailVerified;
         this.socialMedias = profile.socialMedias.map(sm => new SocialMediaDto(sm));
+        this.cityId = profile.cityId;
     }
 }

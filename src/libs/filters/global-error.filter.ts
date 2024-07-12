@@ -21,7 +21,7 @@ export class GlobalErrorFilter implements ExceptionFilter {
         }
 
         if (exception instanceof PrismaClientKnownRequestError) {
-            if (exception.code === 'P2025') nestException = new NotFoundException('not.found');
+            if (exception.code === 'P2025' || exception.code === 'P2003') nestException = new NotFoundException('not.found');
             if (exception.code === 'P2002') nestException = new ConflictException('already.exist'); 
         }
 

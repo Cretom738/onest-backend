@@ -79,7 +79,7 @@ export class UsersService implements IUsersService {
         return new ProfileDto(profile);
     }
     
-    async updateUserProfile(userId: number, { bio, phone, address, web, socialMedias }: UpdateProfileDto): Promise<void> {
+    async updateUserProfile(userId: number, { bio, phone, address, web, socialMedias, cityId }: UpdateProfileDto): Promise<void> {
         
         await this.prisma.profile.update({
             where: {
@@ -89,7 +89,8 @@ export class UsersService implements IUsersService {
                 bio,
                 phone,
                 address,
-                web
+                web,
+                cityId
             }
         });
 

@@ -1,6 +1,5 @@
 import { AuthDto } from "src/libs/dtos/auth.dto";
 import { CreateUserDto } from "src/libs/dtos/create-user.dto";
-import { IRefresh } from "src/libs/interfaces/refresh.interface";
 import { AuthSuccessDto } from "src/libs/dtos/auth-success.dto";
 
 export interface IAuthService {

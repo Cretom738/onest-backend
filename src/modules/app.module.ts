@@ -8,17 +8,22 @@ import { InternalJwtModule } from './internal-jwt/internal-jwt.module';
 import { RedisModule } from '@nestjs-modules/ioredis';
 import { getRedisConfig } from 'src/libs/config/redis.config';
 import { UsersModule } from './users/users.module';
+import { RegionsModule } from './regions/regions.module';
+import { CitiesModule } from './cities/cities.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({
-    isGlobal: true,
-    validationSchema: configSchema
-  }),
-  RedisModule.forRootAsync(getRedisConfig()),
-  AuthModule,
-  SessionsModule,
-  InternalJwtModule,
-  UsersModule
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      validationSchema: configSchema
+    }),
+    RedisModule.forRootAsync(getRedisConfig()),
+    AuthModule,
+    SessionsModule,
+    InternalJwtModule,
+    UsersModule,
+    RegionsModule,
+    CitiesModule
   ]
 })
 export class AppModule implements NestModule {

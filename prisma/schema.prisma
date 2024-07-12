@@ -54,6 +54,8 @@ model Profile {
   web          String?
   userId       Int           @unique @map("user_id")
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cityId       Int?          @map("city_id")
+  city         City?         @relation(fields: [cityId], references: [id], onDelete: Cascade)
   createdAt    DateTime      @default(now()) @map("created_at")
   updatedAt    DateTime      @updatedAt @map("updated_at")
   socialMedias SocialMedia[]
@@ -63,13 +65,31 @@ model Profile {
 
 model SocialMedia {
   id        Int                 @id @default(autoincrement())
-  network   ESocialMediaNetwork 
+  network   ESocialMediaNetwork
   url       String
   profileId Int                 @map("profile_id")
   profile   Profile             @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
   @@unique([profileId, network])
   @@map("social_medias")
+}
+
+model Region {
+  id     Int    @id @default(autoincrement())
+  title  String
+  cities City[]
+
+  @@map("regions")
+}
+
+model City {
+  id       Int       @id @default(autoincrement())
+  title    String
+  regionId Int       @map("region_id")
+  region   Region    @relation(fields: [regionId], references: [id], onDelete: Cascade)
+  profiles Profile[]
+
+  @@map("cities")
 }
 
 enum ERole {
