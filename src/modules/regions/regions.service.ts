@@ -12,7 +12,7 @@ export class RegionsService implements IRegionsService {
 
     async createRegion({ title }: CreateRegionDto): Promise<RegionDto> {
 
-        return this.prisma.region.create({
+        const region = await this.prisma.region.create({
             data: {
                 title
             },
@@ -21,21 +21,23 @@ export class RegionsService implements IRegionsService {
                 title: true
             }
         });
+        return new RegionDto(region);
     }
 
     async findAllRegions(): Promise<RegionDto[]> {
 
-        return this.prisma.region.findMany({
+        const regions = await this.prisma.region.findMany({
             select: {
                 id: true,
                 title: true
             }
         });
+        return regions.map(r => new RegionDto(r));
     }
 
     async findRegionById(id: number): Promise<RegionDto> {
 
-        return this.prisma.region.findUniqueOrThrow({
+        const region = await this.prisma.region.findUniqueOrThrow({
             where: {
                 id
             },
@@ -43,12 +45,14 @@ export class RegionsService implements IRegionsService {
                 id: true,
                 title: true
             }
+            
         });
+        return new RegionDto(region);
     }
 
     async updateRegion(id: number, { title }: UpdateRegionDto): Promise<RegionDto> {
 
-        return this.prisma.region.update({
+        const updatedRegion = await this.prisma.region.update({
             where: {
                 id
             },
@@ -60,6 +64,7 @@ export class RegionsService implements IRegionsService {
                 title: true
             }
         });
+        return new RegionDto(updatedRegion);
     }
 
     async deleteRegion(id: number): Promise<void> {

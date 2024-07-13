@@ -12,47 +12,53 @@ export class CitiesService implements ICitiesService {
 
     async createCity(regionId: number, { title }: CreateCityDto): Promise<CityDto> {
 
-        return this.prisma.city.create({
+        const city = await this.prisma.city.create({
             data: {
                 title,
                 regionId
             },
             select: {
                 id: true,
-                title: true
+                title: true,
+                regionId: true
             }
         });
+        return new CityDto(city);
     }
 
     async findCitiesByRegionId(regionId: number): Promise<CityDto[]> {
 
-        return this.prisma.city.findMany({
+        const cities = await this.prisma.city.findMany({
             where: {
                 regionId
             },
             select: {
                 id: true,
-                title: true
+                title: true,
+                regionId: true
             }
         });
+        return cities.map(c => new CityDto(c));
     }
 
     async findCityById(cityId: number): Promise<CityDto> {
 
-        return this.prisma.region.findUniqueOrThrow({
+        const city = await this.prisma.city.findUniqueOrThrow({
             where: {
                 id: cityId
             },
             select: {
                 id: true,
-                title: true
+                title: true,
+                regionId: true
             }
         });
+        return new CityDto(city);
     }
 
     async updateCity(regionId: number, cityId: number, { title }: UpdateCityDto): Promise<CityDto> {
 
-        return this.prisma.city.update({
+        const updatedCity = await this.prisma.city.update({
             where: {
                 id: cityId
             },
@@ -62,9 +68,11 @@ export class CitiesService implements ICitiesService {
             },
             select: {
                 id: true,
-                title: true
+                title: true,
+                regionId: true
             }
         });
+        return new CityDto(updatedCity);
     }
 
     async deleteCity(cityId: number): Promise<void> {

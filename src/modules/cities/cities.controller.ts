@@ -9,11 +9,11 @@ import { CreateCityDto } from 'src/libs/dtos/create-city.dto';
 import { UpdateCityDto } from 'src/libs/dtos/update-city.dto';
 import { RolesGuard } from 'src/libs/guards/roles.guard';
 import { ERole } from '@prisma/client';
+import { Roles } from 'src/libs/decorators/roles.decorator';
 
 @Controller('regions/:regionId/cities')
 @ApiTags('Cities')
 @ApiBearerAuth('Authorization')
-@UseGuards(AuthGuard)
 export class CitiesController {
     
     constructor(private readonly service: CitiesService) {}
@@ -39,7 +39,8 @@ export class CitiesController {
         description: 'Forbidden',
         type: CommonErrorDto
     })
-    @UseGuards(new RolesGuard([ERole.ADMIN]))
+    @UseGuards(RolesGuard)
+    @Roles([ERole.ADMIN])
     async createCity(@Param('regionId', ParseIntPipe) regionId: number, @Body() data: CreateCityDto): Promise<CityDto> {
 
         return this.service.createCity(regionId, data);
@@ -81,7 +82,7 @@ export class CitiesController {
         description: 'Not found',
         type: CommonErrorDto
     })
-    async findCityById(@Param('cityId', ParseIntPipe) cityId: number): Promise<CityDto> {
+    async findCityById(@Param('regionId', ParseIntPipe) regionId: number, @Param('cityId', ParseIntPipe) cityId: number): Promise<CityDto> {
 
         return this.service.findCityById(cityId);
     }
@@ -111,7 +112,8 @@ export class CitiesController {
         description: 'Not found',
         type: CommonErrorDto
     })
-    @UseGuards(new RolesGuard([ERole.ADMIN]))
+    @UseGuards(RolesGuard)
+    @Roles([ERole.ADMIN])
     async updateCity(@Param('regionId', ParseIntPipe) regionId: number, @Param('cityId', ParseIntPipe) cityId: number, @Body() data: UpdateCityDto): Promise<CityDto> {
 
         return this.service.updateCity(regionId, cityId, data);
@@ -138,8 +140,9 @@ export class CitiesController {
         description: 'Not found',
         type: CommonErrorDto
     })
-    @UseGuards(new RolesGuard([ERole.ADMIN]))
-    async deleteCity(@Param('cityId', ParseIntPipe) cityId: number): Promise<void> {
+    @UseGuards(RolesGuard)
+    @Roles([ERole.ADMIN])
+    async deleteCity(@Param('regionId', ParseIntPipe) regionId: number, @Param('cityId', ParseIntPipe) cityId: number): Promise<void> {
 
         await this.service.deleteCity(cityId);
     }

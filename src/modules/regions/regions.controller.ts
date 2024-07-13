@@ -9,11 +9,11 @@ import { CommonErrorDto } from 'src/libs/dtos/common-error.dto';
 import { UpdateRegionDto } from 'src/libs/dtos/update-region.dto';
 import { RolesGuard } from 'src/libs/guards/roles.guard';
 import { ERole } from '@prisma/client';
+import { Roles } from 'src/libs/decorators/roles.decorator';
 
 @Controller('regions')
 @ApiTags('Regions')
 @ApiBearerAuth('Authorization')
-@UseGuards(AuthGuard)
 export class RegionsController {
     
     constructor(private readonly service: RegionsService) {}
@@ -35,7 +35,8 @@ export class RegionsController {
         description: 'Forbidden',
         type: CommonErrorDto
     })
-    @UseGuards(new RolesGuard([ERole.ADMIN]))
+    @UseGuards(RolesGuard)
+    @Roles([ERole.ADMIN])
     async createRegion(@Body() data: CreateRegionDto): Promise<RegionDto> {
 
         return this.service.createRegion(data);
@@ -103,7 +104,8 @@ export class RegionsController {
         description: 'Not found',
         type: CommonErrorDto
     })
-    @UseGuards(new RolesGuard([ERole.ADMIN]))
+    @UseGuards(RolesGuard)
+    @Roles([ERole.ADMIN])
     async updateRegion(@Param('id', ParseIntPipe) id: number, @Body() data: UpdateRegionDto): Promise<RegionDto> {
 
         return this.service.updateRegion(id, data);
@@ -130,7 +132,8 @@ export class RegionsController {
         description: 'Not found',
         type: CommonErrorDto
     })
-    @UseGuards(new RolesGuard([ERole.ADMIN]))
+    @UseGuards(RolesGuard)
+    @Roles([ERole.ADMIN])
     async deleteRegion(@Param('id', ParseIntPipe) id: number): Promise<void> {
 
         await this.service.deleteRegion(id);

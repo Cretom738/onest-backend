@@ -59,6 +59,7 @@ model Profile {
   createdAt    DateTime      @default(now()) @map("created_at")
   updatedAt    DateTime      @updatedAt @map("updated_at")
   socialMedias SocialMedia[]
+  ads          Ad[]
 
   @@map("profiles")
 }
@@ -88,8 +89,52 @@ model City {
   regionId Int       @map("region_id")
   region   Region    @relation(fields: [regionId], references: [id], onDelete: Cascade)
   profiles Profile[]
+  ad       Ad?
 
   @@map("cities")
+}
+
+model Ad {
+  id            Int         @id @default(autoincrement())
+  title         String
+  price         Int
+  description   String?
+  images        String[]
+  conditions    ECondition  @default(value: NEW)
+  brand         String?
+  model         String?
+  year          Int?
+  isOriginal    Boolean     @default(false) @map("is_original")
+  features      String[]
+  address       String?
+  profileId     Int         @map("profile_id")
+  profile       Profile     @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  cityId        Int         @unique @map("city_id")
+  city          City        @relation(fields: [cityId], references: [id], onDelete: Cascade)
+  subCategoryId Int         @unique @map("sub_category_id")
+  subCategory   SubCategory @relation(fields: [subCategoryId], references: [id], onDelete: Cascade)
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
+
+  @@map("ads")
+}
+
+model Category {
+  id          Int           @id @default(autoincrement())
+  title       String
+  subCategories SubCategory[]
+
+  @@map("categories")
+}
+
+model SubCategory {
+  id         Int      @id @default(autoincrement())
+  title      String
+  categoryId Int      @map("category_id")
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  ad         Ad?
+
+  @@map("sub_categories")
 }
 
 enum ERole {
@@ -106,4 +151,9 @@ enum ESocialMediaNetwork {
   FACEBOOK
   X
   LINKEDIN
+}
+
+enum ECondition {
+  NEW
+  USED
 }
