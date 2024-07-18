@@ -1,26 +1,26 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiBearerAuth, ApiCreatedResponse, ApiForbiddenResponse, ApiNoContentResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
-import { RegionsService } from './regions.service';
-import { RegionDto } from 'src/libs/dtos/region.dto';
+import { CategoriesService } from './categories.service';
+import { CategoryDto } from 'src/libs/dtos/category.dto';
 import { BadRequestDto } from 'src/libs/dtos/bad-request.dto';
-import { CreateRegionDto } from 'src/libs/dtos/create-region.dto';
 import { CommonErrorDto } from 'src/libs/dtos/common-error.dto';
-import { UpdateRegionDto } from 'src/libs/dtos/update-region.dto';
 import { RolesGuard } from 'src/libs/guards/roles.guard';
 import { ERole } from '@prisma/client';
 import { Roles } from 'src/libs/decorators/roles.decorator';
+import { CreateCategoryDto } from 'src/libs/dtos/create-category.dto';
+import { UpdateCategoryDto } from 'src/libs/dtos/update-category.dto';
 
-@Controller('regions')
-@ApiTags('Regions')
+@Controller('categories')
+@ApiTags('Categories')
 @ApiBearerAuth('Authorization')
-export class RegionsController {
+export class CategoriesController {
     
-    constructor(private readonly service: RegionsService) {}
+    constructor(private readonly service: CategoriesService) {}
 
     @Post()
     @ApiCreatedResponse({
-        description: 'Create new region',
-        type: RegionDto
+        description: 'Create new category',
+        type: CategoryDto
     })
     @ApiBadRequestResponse({
         description: 'Validation error',
@@ -36,26 +36,26 @@ export class RegionsController {
     })
     @UseGuards(RolesGuard)
     @Roles([ERole.ADMIN])
-    async createRegion(@Body() data: CreateRegionDto): Promise<RegionDto> {
+    async createCategory(@Body() data: CreateCategoryDto): Promise<CategoryDto> {
 
-        return this.service.createRegion(data);
+        return this.service.createCategory(data);
     }
   
     @Get()
     @ApiOkResponse({
-        description: 'Get list of regions',
-        type: RegionDto,
+        description: 'Get list of categories',
+        type: CategoryDto,
         isArray: true
     })
-    async findAllRegions(): Promise<RegionDto[]> {
+    async findAllCategories(): Promise<CategoryDto[]> {
 
-        return this.service.findAllRegions();
+        return this.service.findAllCategories();
     }
   
     @Get(':id')
     @ApiOkResponse({
-        description: 'Get region by id',
-        type: RegionDto
+        description: 'Get category by id',
+        type: CategoryDto
     })
     @ApiBadRequestResponse({
         description: 'Id validation error',
@@ -65,15 +65,15 @@ export class RegionsController {
         description: 'Not found',
         type: CommonErrorDto
     })
-    async findRegionById(@Param('id', ParseIntPipe) id: number): Promise<RegionDto> {
+    async findCategoryById(@Param('id', ParseIntPipe) id: number): Promise<CategoryDto> {
 
-        return this.service.findRegionById(id);
+        return this.service.findCategoryById(id);
     }
   
     @Patch(':id')
     @ApiOkResponse({
-        description: 'Update region by id',
-        type: RegionDto
+        description: 'Update category by id',
+        type: CategoryDto
     })
     @ApiBadRequestResponse({
         description: 'Validation error',
@@ -97,15 +97,15 @@ export class RegionsController {
     })
     @UseGuards(RolesGuard)
     @Roles([ERole.ADMIN])
-    async updateRegion(@Param('id', ParseIntPipe) id: number, @Body() data: UpdateRegionDto): Promise<RegionDto> {
+    async updateCategory(@Param('id', ParseIntPipe) id: number, @Body() data: UpdateCategoryDto): Promise<CategoryDto> {
 
-        return this.service.updateRegion(id, data);
+        return this.service.updateCategory(id, data);
     }
   
     @Delete(':id')
     @HttpCode(HttpStatus.NO_CONTENT)
     @ApiNoContentResponse({
-        description: 'Delete region by id'
+        description: 'Delete category by id'
     })
     @ApiBadRequestResponse({
         description: 'Id validation error',
@@ -125,8 +125,8 @@ export class RegionsController {
     })
     @UseGuards(RolesGuard)
     @Roles([ERole.ADMIN])
-    async deleteRegion(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    async deleteCategory(@Param('id', ParseIntPipe) id: number): Promise<void> {
 
-        await this.service.deleteRegion(id);
+        await this.service.deleteCategory(id);
     }
 }

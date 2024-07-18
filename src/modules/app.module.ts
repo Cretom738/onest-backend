@@ -10,6 +10,8 @@ import { getRedisConfig } from 'src/libs/config/redis.config';
 import { UsersModule } from './users/users.module';
 import { RegionsModule } from './regions/regions.module';
 import { CitiesModule } from './cities/cities.module';
+import { CategoriesModule } from './categories/categories.module';
+import { SubCategoriesModule } from './sub-categories/sub-categories.module';
 
 @Module({
   imports: [
@@ -23,7 +25,9 @@ import { CitiesModule } from './cities/cities.module';
     InternalJwtModule,
     UsersModule,
     RegionsModule,
-    CitiesModule
+    CitiesModule,
+    CategoriesModule,
+    SubCategoriesModule
   ]
 })
 export class AppModule implements NestModule {

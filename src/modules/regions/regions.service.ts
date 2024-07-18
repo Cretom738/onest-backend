@@ -21,6 +21,7 @@ export class RegionsService implements IRegionsService {
                 title: true
             }
         });
+
         return new RegionDto(region);
     }
 
@@ -32,6 +33,7 @@ export class RegionsService implements IRegionsService {
                 title: true
             }
         });
+
         return regions.map(r => new RegionDto(r));
     }
 
@@ -47,6 +49,7 @@ export class RegionsService implements IRegionsService {
             }
             
         });
+
         return new RegionDto(region);
     }
 
@@ -64,6 +67,7 @@ export class RegionsService implements IRegionsService {
                 title: true
             }
         });
+        
         return new RegionDto(updatedRegion);
     }
 

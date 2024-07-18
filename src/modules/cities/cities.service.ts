@@ -23,6 +23,7 @@ export class CitiesService implements ICitiesService {
                 regionId: true
             }
         });
+
         return new CityDto(city);
     }
 
@@ -38,6 +39,7 @@ export class CitiesService implements ICitiesService {
                 regionId: true
             }
         });
+
         return cities.map(c => new CityDto(c));
     }
 
@@ -53,6 +55,7 @@ export class CitiesService implements ICitiesService {
                 regionId: true
             }
         });
+
         return new CityDto(city);
     }
 
@@ -72,6 +75,7 @@ export class CitiesService implements ICitiesService {
                 regionId: true
             }
         });
+        
         return new CityDto(updatedCity);
     }
 

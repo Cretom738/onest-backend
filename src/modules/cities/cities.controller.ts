@@ -1,7 +1,6 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
 import { CitiesService } from './cities.service';
 import { ApiBadRequestResponse, ApiBearerAuth, ApiCreatedResponse, ApiForbiddenResponse, ApiNoContentResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
-import { AuthGuard } from 'src/libs/guards/auth.guard';
 import { CityDto } from 'src/libs/dtos/city.dto';
 import { BadRequestDto } from 'src/libs/dtos/bad-request.dto';
 import { CommonErrorDto } from 'src/libs/dtos/common-error.dto';
@@ -56,10 +55,6 @@ export class CitiesController {
         description: 'Id validation error',
         type: CommonErrorDto
     })
-    @ApiUnauthorizedResponse({
-        description: 'Unauthorized',
-        type: CommonErrorDto
-    })
     async findCitiesByRegionId(@Param('regionId', ParseIntPipe) regionId: number): Promise<CityDto[]> {
 
         return this.service.findCitiesByRegionId(regionId);
@@ -72,10 +67,6 @@ export class CitiesController {
     })
     @ApiBadRequestResponse({
         description: 'Id validation error',
-        type: CommonErrorDto
-    })
-    @ApiUnauthorizedResponse({
-        description: 'Unauthorized',
         type: CommonErrorDto
     })
     @ApiNotFoundResponse({
