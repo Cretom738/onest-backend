@@ -12,6 +12,7 @@ import { RegionsModule } from './regions/regions.module';
 import { CitiesModule } from './cities/cities.module';
 import { CategoriesModule } from './categories/categories.module';
 import { SubCategoriesModule } from './sub-categories/sub-categories.module';
+import { AdsModule } from './ads/ads.module';
 
 @Module({
   imports: [
@@ -27,7 +28,8 @@ import { SubCategoriesModule } from './sub-categories/sub-categories.module';
     RegionsModule,
     CitiesModule,
     CategoriesModule,
-    SubCategoriesModule
+    SubCategoriesModule,
+    AdsModule
   ]
 })
 export class AppModule implements NestModule {

@@ -25,7 +25,7 @@ export class AuthService implements IAuthService {
 
         const hashedPassword: string = await this.argon.hash(password);
 
-        const { id, roles } = await this.usersService.createUser({
+        const { id, roles, profileId } = await this.usersService.createUser({
             email,
             fullName,
             password: hashedPassword,
@@ -33,7 +33,7 @@ export class AuthService implements IAuthService {
 
         const deviceId = randomInt(999999);
 
-        const { accessToken, refreshToken, accessTokenId } = await this.jwt.generateTokenPairs({ userId: id, roles }, deviceId);
+        const { accessToken, refreshToken, accessTokenId } = await this.jwt.generateTokenPairs({ userId: id, roles, profileId }, deviceId);
 
         await this.sessionsService.createSession({  
             userId: id,
@@ -50,7 +50,7 @@ export class AuthService implements IAuthService {
 
     async login({ email, password }: AuthDto): Promise<AuthSuccessDto> {
 
-        const { id, roles, hashedPassword } = await this.usersService.findUserByEmail(email);
+        const { id, roles, hashedPassword, profileId } = await this.usersService.findUserByEmail(email);
 
         const isPasswordValid = await this.argon.compare(password, hashedPassword);
 
@@ -60,7 +60,7 @@ export class AuthService implements IAuthService {
 
         const deviceId = randomInt(999999);
 
-        const { accessToken, refreshToken, accessTokenId } = await this.jwt.generateTokenPairs({ userId: id, roles }, deviceId);
+        const { accessToken, refreshToken, accessTokenId } = await this.jwt.generateTokenPairs({ userId: id, roles, profileId }, deviceId);
         
         await this.sessionsService.createSession({  
             userId: id,
@@ -88,7 +88,7 @@ export class AuthService implements IAuthService {
             throw new UnauthorizedException('auth.session.expired.or.invalid.token');
         }
 
-        const { refreshToken, accessToken, accessTokenId } = await this.jwt.generateTokenPairs({ userId: payload.userId, roles: payload.roles }, payload.deviceId);
+        const { refreshToken, accessToken, accessTokenId } = await this.jwt.generateTokenPairs({ userId: payload.userId, roles: payload.roles, profileId: payload.profileId }, payload.deviceId);
 
         await this.sessionsService.updateSession({ userId: payload.userId, deviceId: payload.deviceId, refreshToken, accessTokenId }, payload.accessTokenId);
 

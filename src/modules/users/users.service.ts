@@ -16,7 +16,7 @@ export class UsersService implements IUsersService {
     constructor(private readonly prisma: PrismaService) {
     }
     
-    async createUser({ email, fullName, password }: CreateUserDto): Promise<{ id: number, roles: ERole[] }> {
+    async createUser({ email, fullName, password }: CreateUserDto): Promise<{ id: number, roles: ERole[], profileId: number }> {
         const { id, roles } = await this.prisma.user.create({
             data: {
                 email,
@@ -25,10 +25,11 @@ export class UsersService implements IUsersService {
                 roles: [ERole.USER]
             }
         });
-        await this.createUserProfile(id);
+        const profileId = await this.createUserProfile(id);
         return {
             id,
-            roles
+            roles,
+            profileId
         };
     }
 
@@ -36,11 +37,14 @@ export class UsersService implements IUsersService {
         throw new Error('Method not implemented.');
     }
 
-    async findUserByEmail(email: string): Promise<{ id: number, roles: ERole[], hashedPassword: string }> {
+    async findUserByEmail(email: string): Promise<{ id: number, roles: ERole[], hashedPassword: string, profileId: number }> {
         
         const user = await this.prisma.user.findUnique({
             where: {
                 email
+            },
+            include: {
+                profile: true
             }
         });
 
@@ -51,17 +55,18 @@ export class UsersService implements IUsersService {
         return {
             id: user.id,
             roles: user.roles,
-            hashedPassword: user.password
+            hashedPassword: user.password,
+            profileId: user.profile.id
         };
     }
     
-    async createUserProfile(userId: number): Promise<void> {
+    async createUserProfile(userId: number): Promise<number> {
         
-        await this.prisma.profile.create({
+        return (await this.prisma.profile.create({
             data: {
                 userId
             }
-        });
+        })).id;
     }
     
     async getUserProfile(userId: number): Promise<ProfileDto> {

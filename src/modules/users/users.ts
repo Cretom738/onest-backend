@@ -8,9 +8,9 @@ export interface IUsersService {
 
     findUserById(id: number): Promise<any>;
 
-    findUserByEmail(email: string): Promise<{ id: number, roles: ERole[], hashedPassword: string }>;
+    findUserByEmail(email: string): Promise<{ id: number, roles: ERole[], hashedPassword: string, profileId: number }>;
 
-    createUserProfile(userId: number): Promise<void>;
+    createUserProfile(userId: number): Promise<number>;
 
     getUserProfile(userId: number): Promise<ProfileDto>;
 

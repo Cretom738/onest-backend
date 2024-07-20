@@ -7,6 +7,8 @@ export interface IJwtPayload {
 
     userId: number;
 
+    profileId: number;
+
     accessTokenId?: number;
 
     roles: ERole[];
