@@ -10,7 +10,7 @@ export interface IAdsService {
 
     findAdById(id: number): Promise<Ad>;
 
-    updateAd(id: number, data: UpdateAdDto): Promise<Ad>;
+    updateAd(profileId: number, id: number, data: UpdateAdDto): Promise<Ad>;
 
-    deleteAd(id: number): Promise<void>;
+    deleteAd(profileId: number, id: number): Promise<void>;
 }

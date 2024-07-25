@@ -3,13 +3,13 @@ import { ApiBadRequestResponse, ApiBearerAuth, ApiOkResponse, ApiTags, ApiUnauth
 import { UserInfo } from 'src/libs/decorators/user-info.decorator';
 import { IJwtPayload } from 'src/libs/interfaces/jwt-payload.interface';
 import { UsersService } from './users.service';
-import { ProfileDto } from 'src/libs/dtos/profile.dto';
+import { ProfileDto } from 'src/modules/users/dtos/profile.dto';
 import { AuthGuard } from 'src/libs/guards/auth.guard';
 import { SuccessDto } from 'src/libs/dtos/success-dto';
 import { CommonErrorDto } from 'src/libs/dtos/common-error.dto';
 import { NotFoundError } from 'rxjs';
 import { BadRequestDto } from 'src/libs/dtos/bad-request.dto';
-import { UpdateProfileDto } from 'src/libs/dtos/update-profile.dto';
+import { UpdateProfileDto } from 'src/modules/users/dtos/update-profile.dto';
 
 @Controller('users')
 @ApiTags('Users')

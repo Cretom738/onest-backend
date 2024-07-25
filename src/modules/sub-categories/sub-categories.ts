@@ -1,6 +1,6 @@
-import { CreateSubCategoryDto } from "src/libs/dtos/create-sub-category.dto";
-import { SubCategoryDto } from "src/libs/dtos/sub-category.dto";
-import { UpdateSubCategoryDto } from "src/libs/dtos/update-sub-category.dto";
+import { CreateSubCategoryDto } from "./dtos/create-sub-category.dto";
+import { SubCategoryDto } from "./dtos/sub-category.dto";
+import { UpdateSubCategoryDto } from "./dtos/update-sub-category.dto";
 
 export interface ISubCategoriesService {
 

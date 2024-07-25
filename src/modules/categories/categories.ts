@@ -1,6 +1,6 @@
-import { CategoryDto } from "src/libs/dtos/category.dto";
-import { CreateCategoryDto } from "src/libs/dtos/create-category.dto";
-import { UpdateCategoryDto } from "src/libs/dtos/update-category.dto";
+import { CategoryDto } from "src/modules/categories/dtos/category.dto";
+import { CreateCategoryDto } from "src/modules/categories/dtos/create-category.dto";
+import { UpdateCategoryDto } from "src/modules/categories/dtos/update-category.dto";
 
 export interface ICategoriesService {
 

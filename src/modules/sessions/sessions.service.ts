@@ -52,6 +52,7 @@ export class SessionsService implements ISessionsService {
         let session: { id: number };
         
         try {
+
             session = await this.prisma.session.update({
                 where: {
                     deviceId
@@ -64,7 +65,9 @@ export class SessionsService implements ISessionsService {
                     id: true
                 }
             });
+            
         } catch (error: any) {
+            
             this.logger.error(error.message);
 
             if (error instanceof PrismaClientKnownRequestError

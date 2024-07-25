@@ -1,14 +1,14 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiBearerAuth, ApiCreatedResponse, ApiForbiddenResponse, ApiNoContentResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { CategoriesService } from './categories.service';
-import { CategoryDto } from 'src/libs/dtos/category.dto';
+import { CategoryDto } from 'src/modules/categories/dtos/category.dto';
 import { BadRequestDto } from 'src/libs/dtos/bad-request.dto';
 import { CommonErrorDto } from 'src/libs/dtos/common-error.dto';
 import { RolesGuard } from 'src/libs/guards/roles.guard';
 import { ERole } from '@prisma/client';
 import { Roles } from 'src/libs/decorators/roles.decorator';
-import { CreateCategoryDto } from 'src/libs/dtos/create-category.dto';
-import { UpdateCategoryDto } from 'src/libs/dtos/update-category.dto';
+import { CreateCategoryDto } from 'src/modules/categories/dtos/create-category.dto';
+import { UpdateCategoryDto } from 'src/modules/categories/dtos/update-category.dto';
 
 @Controller('categories')
 @ApiTags('Categories')

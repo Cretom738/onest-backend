@@ -1,11 +1,11 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiBearerAuth, ApiCreatedResponse, ApiForbiddenResponse, ApiNoContentResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { RegionsService } from './regions.service';
-import { RegionDto } from 'src/libs/dtos/region.dto';
+import { RegionDto } from './dtos/region.dto';
 import { BadRequestDto } from 'src/libs/dtos/bad-request.dto';
-import { CreateRegionDto } from 'src/libs/dtos/create-region.dto';
+import { CreateRegionDto } from './dtos/create-region.dto';
 import { CommonErrorDto } from 'src/libs/dtos/common-error.dto';
-import { UpdateRegionDto } from 'src/libs/dtos/update-region.dto';
+import { UpdateRegionDto } from './dtos/update-region.dto';
 import { RolesGuard } from 'src/libs/guards/roles.guard';
 import { ERole } from '@prisma/client';
 import { Roles } from 'src/libs/decorators/roles.decorator';

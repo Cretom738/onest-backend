@@ -1,11 +1,11 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
 import { CitiesService } from './cities.service';
 import { ApiBadRequestResponse, ApiBearerAuth, ApiCreatedResponse, ApiForbiddenResponse, ApiNoContentResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
-import { CityDto } from 'src/libs/dtos/city.dto';
+import { CityDto } from 'src/modules/cities/dtos/city.dto';
 import { BadRequestDto } from 'src/libs/dtos/bad-request.dto';
 import { CommonErrorDto } from 'src/libs/dtos/common-error.dto';
-import { CreateCityDto } from 'src/libs/dtos/create-city.dto';
-import { UpdateCityDto } from 'src/libs/dtos/update-city.dto';
+import { CreateCityDto } from 'src/modules/cities/dtos/create-city.dto';
+import { UpdateCityDto } from 'src/modules/cities/dtos/update-city.dto';
 import { RolesGuard } from 'src/libs/guards/roles.guard';
 import { ERole } from '@prisma/client';
 import { Roles } from 'src/libs/decorators/roles.decorator';

@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { CreateCityDto } from 'src/libs/dtos/create-city.dto';
+import { CreateCityDto } from 'src/modules/cities/dtos/create-city.dto';
 import { PrismaService } from 'src/libs/services/prisma.service';
 import { ICitiesService } from './cities';
-import { CityDto } from 'src/libs/dtos/city.dto';
-import { UpdateCityDto } from 'src/libs/dtos/update-city.dto';
+import { CityDto } from 'src/modules/cities/dtos/city.dto';
+import { UpdateCityDto } from 'src/modules/cities/dtos/update-city.dto';
 
 @Injectable()
 export class CitiesService implements ICitiesService {

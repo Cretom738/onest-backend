@@ -1,9 +1,9 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { IAuthService } from './auth';
-import { AuthDto } from 'src/libs/dtos/auth.dto';
-import { CreateUserDto } from 'src/libs/dtos/create-user.dto';
+import { AuthDto } from 'src/modules/auth/dtos/auth.dto';
+import { CreateUserDto } from 'src/modules/users/dtos/create-user.dto';
 import { IRefresh } from 'src/libs/interfaces/refresh.interface';
-import { AuthSuccessDto } from 'src/libs/dtos/auth-success.dto';
+import { AuthSuccessDto } from 'src/modules/auth/dtos/auth-success.dto';
 import { UsersService } from '../users/users.service';
 import { ArgonService } from 'src/libs/services/argon.service';
 import { InternalJwtService } from '../internal-jwt/internal-jwt.service';
@@ -55,7 +55,8 @@ export class AuthService implements IAuthService {
         const isPasswordValid = await this.argon.compare(password, hashedPassword);
 
         if (!isPasswordValid) {
-            throw new UnauthorizedException('auth.invalid_credentials');
+            
+            throw new UnauthorizedException('auth.invalid.credentials');
         }
 
         const deviceId = randomInt(999999);

@@ -1,14 +1,14 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { IUsersService } from './users';
-import { CreateUserDto } from 'src/libs/dtos/create-user.dto';
-import { AuthDto } from 'src/libs/dtos/auth.dto';
+import { CreateUserDto } from 'src/modules/users/dtos/create-user.dto';
+import { AuthDto } from 'src/modules/auth/dtos/auth.dto';
 import { PrismaService } from 'src/libs/services/prisma.service';
 import { ERole } from '.prisma/client';
 import { NotFoundError } from 'rxjs';
-import { ProfileDto } from 'src/libs/dtos/profile.dto';
+import { ProfileDto } from 'src/modules/users/dtos/profile.dto';
 import { isArray } from 'class-validator';
-import { SocialMediaDto } from 'src/libs/dtos/social-media.dto';
-import { UpdateProfileDto } from 'src/libs/dtos/update-profile.dto';
+import { SocialMediaDto } from './dtos/social-media.dto';
+import { UpdateProfileDto } from 'src/modules/users/dtos/update-profile.dto';
 
 @Injectable()
 export class UsersService implements IUsersService {
@@ -49,7 +49,8 @@ export class UsersService implements IUsersService {
         });
 
         if (!user) {
-            throw new UnauthorizedException('auth.invalid_credentials');
+            
+            throw new UnauthorizedException('auth.invalid.credentials');
         }
 
         return {

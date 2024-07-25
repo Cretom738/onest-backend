@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, Logger } from '@nestjs/common';
 import { IAdsService } from './ads';
 import { CreateAdDto } from './dtos/create-ad.dto';
 import { UpdateAdDto } from './dtos/update-ad.dto';
@@ -12,7 +12,7 @@ export class AdsService implements IAdsService {
 
     async createAd(profileId: number, data: CreateAdDto): Promise<Ad> {
 
-        return await this.prisma.ad.create({
+        return this.prisma.ad.create({
             data: {
                 ...data,
                 profileId
@@ -21,19 +21,63 @@ export class AdsService implements IAdsService {
     }
 
     async findAllAds(): Promise<Ad[]> {
-        throw new Error('Method not implemented.');
+
+        return this.prisma.ad.findMany();
     }
 
     async findAdById(id: number): Promise<Ad> {
-        throw new Error('Method not implemented.');
+        
+        return this.prisma.ad.findUniqueOrThrow({
+            where: {
+                id
+            }
+        });
     }
 
-    async updateAd(id: number, data: UpdateAdDto): Promise<Ad> {
-        throw new Error('Method not implemented.');
+    async updateAd(profileId: number, id: number, data: UpdateAdDto): Promise<Ad> {
+
+        const ad: { profileId: number } = await this.prisma.ad.findUniqueOrThrow({
+            where: {
+                id
+            },
+            select: {
+                profileId: true
+            }
+        });
+
+        if (ad.profileId !== profileId) {
+
+            throw new ForbiddenException('ad.not.belong.to.user');
+        }
+        
+        return this.prisma.ad.update({
+            where: {
+                id
+            },
+            data: data
+        });
     }
 
-    async deleteAd(id: number): Promise<void> {
-        throw new Error('Method not implemented.');
+    async deleteAd(profileId: number, id: number): Promise<void> {
+
+        const ad: { profileId: number } = await this.prisma.ad.findUniqueOrThrow({
+            where: {
+                id
+            },
+            select: {
+                profileId: true
+            }
+        });
+
+        if (ad.profileId !== profileId) {
+
+            throw new ForbiddenException('ad.not.belong.to.user');
+        }
+        
+        await this.prisma.ad.delete({
+            where: {
+                id
+            }
+        });
     }
-    
 }

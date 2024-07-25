@@ -1,12 +1,12 @@
 import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateUserDto } from 'src/libs/dtos/create-user.dto';
-import { AuthSuccessDto } from 'src/libs/dtos/auth-success.dto';
-import { AuthDto } from 'src/libs/dtos/auth.dto';
+import { CreateUserDto } from 'src/modules/users/dtos/create-user.dto';
+import { AuthSuccessDto } from 'src/modules/auth/dtos/auth-success.dto';
+import { AuthDto } from 'src/modules/auth/dtos/auth.dto';
 import { UserInfo } from 'src/libs/decorators/user-info.decorator';
 import { IJwtPayload } from 'src/libs/interfaces/jwt-payload.interface';
 import { AuthGuard } from 'src/libs/guards/auth.guard';
-import { RefreshDto } from 'src/libs/dtos/refresh.dto';
+import { RefreshDto } from 'src/modules/auth/dtos/refresh.dto';
 import { SuccessDto } from 'src/libs/dtos/success-dto';
 import { ApiBadRequestResponse, ApiBearerAuth, ApiConflictResponse, ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { BadRequestDto } from 'src/libs/dtos/bad-request.dto';

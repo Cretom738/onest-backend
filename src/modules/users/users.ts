@@ -1,6 +1,6 @@
 import { ERole } from "@prisma/client";
-import { CreateUserDto } from "src/libs/dtos/create-user.dto";
-import { ProfileDto } from "src/libs/dtos/profile.dto";
+import { CreateUserDto } from "src/modules/users/dtos/create-user.dto";
+import { ProfileDto } from "src/modules/users/dtos/profile.dto";
 
 export interface IUsersService {
 

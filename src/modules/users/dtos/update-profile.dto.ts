@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { ArrayMaxSize, IsArray, IsNumber, IsOptional, IsPhoneNumber, isPositive, IsString, Length, Max, Min, ValidateNested } from "class-validator";
-import { ProfileWithRelatedTable } from "../types/prisma.type";
+import { ProfileWithRelatedTable } from "../../../libs/types/prisma.type";
 import { SocialMediaDto } from "./social-media.dto";
 import { Type } from "class-transformer";
 import { UpdateSocialMediaDto } from "./update-social-media.dto";

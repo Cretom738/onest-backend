@@ -6,9 +6,9 @@ import { RolesGuard } from 'src/libs/guards/roles.guard';
 import { ERole } from '@prisma/client';
 import { Roles } from 'src/libs/decorators/roles.decorator';
 import { SubCategoriesService } from './sub-categories.service';
-import { SubCategoryDto } from 'src/libs/dtos/sub-category.dto';
-import { CreateSubCategoryDto } from 'src/libs/dtos/create-sub-category.dto';
-import { UpdateSubCategoryDto } from 'src/libs/dtos/update-sub-category.dto';
+import { SubCategoryDto } from './dtos/sub-category.dto';
+import { CreateSubCategoryDto } from './dtos/create-sub-category.dto';
+import { UpdateSubCategoryDto } from './dtos/update-sub-category.dto';
 
 @Controller('categories/:categoryId/sub-categories')
 @ApiTags('SubCategories')

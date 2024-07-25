@@ -19,9 +19,9 @@ export class AdDto extends CreateAdDto {
         this.model = ad.model;
         this.year = ad.year;
         this.isOriginal = ad.isOriginal;
-        this.features = this.features;
-        this.address = this.address;
-        this.cityId = this.cityId;
-        this.subCategoryId = this.subCategoryId;
+        this.features = ad.features;
+        this.address = ad.address;
+        this.cityId = ad.cityId;
+        this.subCategoryId = ad.subCategoryId;
     }
 }
