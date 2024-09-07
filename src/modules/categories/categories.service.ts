@@ -1,18 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { ICategoriesService } from './categories';
 import { PrismaService } from 'src/libs/services/prisma.service';
-import { CategoryDto } from 'src/modules/categories/dtos/category.dto';
 import { CreateCategoryDto } from 'src/modules/categories/dtos/create-category.dto';
 import { UpdateCategoryDto } from 'src/modules/categories/dtos/update-category.dto';
+import { Category } from '@prisma/client';
+import { PaginatedRequestDto } from 'src/libs/dtos/paginated-request.dto';
 
 @Injectable()
 export class CategoriesService implements ICategoriesService {
 
     constructor(private readonly prisma: PrismaService) {}
 
-    async createCategory({ title }: CreateCategoryDto): Promise<CategoryDto> {
+    async createCategory({ title }: CreateCategoryDto): Promise<Category> {
 
-        const category = await this.prisma.category.create({
+        return this.prisma.category.create({
             data: {
                 title
             },
@@ -21,25 +22,23 @@ export class CategoriesService implements ICategoriesService {
                 title: true
             }
         });
-
-        return new CategoryDto(category);
     }
 
-    async findAllCategories(): Promise<CategoryDto[]> {
+    async findAllCategories({ limit, offset }: PaginatedRequestDto): Promise<Category[]> {
 
-        const categories = await this.prisma.category.findMany({
+        return this.prisma.category.findMany({
             select: {
                 id: true,
                 title: true
-            }
+            },
+            skip: offset,
+            take: limit
         });
-
-        return categories.map(c => new CategoryDto(c));
     }
 
-    async findCategoryById(id: number): Promise<CategoryDto> {
+    async findCategoryById(id: number): Promise<Category> {
 
-        const category = await this.prisma.category.findUniqueOrThrow({
+        return this.prisma.category.findUniqueOrThrow({
             where: {
                 id
             },
@@ -47,15 +46,12 @@ export class CategoriesService implements ICategoriesService {
                 id: true,
                 title: true
             }
-            
         });
-
-        return new CategoryDto(category);
     }
 
-    async updateCategory(id: number, { title }: UpdateCategoryDto): Promise<CategoryDto> {
+    async updateCategory(id: number, { title }: UpdateCategoryDto): Promise<Category> {
 
-        const updatedCategory = await this.prisma.category.update({
+        return this.prisma.category.update({
             where: {
                 id
             },
@@ -67,8 +63,6 @@ export class CategoriesService implements ICategoriesService {
                 title: true
             }
         });
-        
-        return new CategoryDto(updatedCategory);
     }
 
     async deleteCategory(id: number): Promise<void> {

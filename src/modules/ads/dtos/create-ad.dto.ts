@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { ECondition } from "@prisma/client";
-import { ArrayMinSize, IsArray, IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsPositive, isPositive, IsString } from "class-validator";
+import { ArrayMinSize, IsArray, IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString } from "class-validator";
 
 export class CreateAdDto {
 
@@ -41,6 +41,7 @@ export class CreateAdDto {
 
     @ApiProperty({ type: 'number' })
     @IsNumber()
+    @IsPositive()
     @IsOptional()
     year: number | null;
 

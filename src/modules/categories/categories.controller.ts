@@ -1,14 +1,15 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiBearerAuth, ApiCreatedResponse, ApiForbiddenResponse, ApiNoContentResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { CategoriesService } from './categories.service';
 import { CategoryDto } from 'src/modules/categories/dtos/category.dto';
 import { BadRequestDto } from 'src/libs/dtos/bad-request.dto';
 import { CommonErrorDto } from 'src/libs/dtos/common-error.dto';
 import { RolesGuard } from 'src/libs/guards/roles.guard';
-import { ERole } from '@prisma/client';
+import { Category, ERole } from '@prisma/client';
 import { Roles } from 'src/libs/decorators/roles.decorator';
 import { CreateCategoryDto } from 'src/modules/categories/dtos/create-category.dto';
 import { UpdateCategoryDto } from 'src/modules/categories/dtos/update-category.dto';
+import { PaginatedRequestDto } from 'src/libs/dtos/paginated-request.dto';
 
 @Controller('categories')
 @ApiTags('Categories')
@@ -38,7 +39,9 @@ export class CategoriesController {
     @Roles([ERole.ADMIN])
     async createCategory(@Body() data: CreateCategoryDto): Promise<CategoryDto> {
 
-        return this.service.createCategory(data);
+        let category: Category = await this.service.createCategory(data);
+
+        return new CategoryDto(category);
     }
   
     @Get()
@@ -47,9 +50,11 @@ export class CategoriesController {
         type: CategoryDto,
         isArray: true
     })
-    async findAllCategories(): Promise<CategoryDto[]> {
+    async findAllCategories(@Query() filterData: PaginatedRequestDto): Promise<CategoryDto[]> {
 
-        return this.service.findAllCategories();
+        let categories: Category[] = await this.service.findAllCategories(filterData);
+
+        return categories.map(c => new CategoryDto(c));
     }
   
     @Get(':id')
@@ -67,7 +72,9 @@ export class CategoriesController {
     })
     async findCategoryById(@Param('id', ParseIntPipe) id: number): Promise<CategoryDto> {
 
-        return this.service.findCategoryById(id);
+        let category: Category = await this.service.findCategoryById(id);
+
+        return new CategoryDto(category);
     }
   
     @Patch(':id')
@@ -76,12 +83,8 @@ export class CategoriesController {
         type: CategoryDto
     })
     @ApiBadRequestResponse({
-        description: 'Validation error',
+        description: 'Validation error or id validation error',
         type: BadRequestDto
-    })
-    @ApiBadRequestResponse({
-        description: 'Id validation error',
-        type: CommonErrorDto
     })
     @ApiUnauthorizedResponse({
         description: 'Unauthorized',
@@ -99,7 +102,9 @@ export class CategoriesController {
     @Roles([ERole.ADMIN])
     async updateCategory(@Param('id', ParseIntPipe) id: number, @Body() data: UpdateCategoryDto): Promise<CategoryDto> {
 
-        return this.service.updateCategory(id, data);
+        let category: Category = await this.service.updateCategory(id, data);
+
+        return new CategoryDto(category);
     }
   
     @Delete(':id')

@@ -14,7 +14,7 @@ async function bootstrap() {
     
     app.useGlobalFilters(new GlobalErrorFilter());
   
-    app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
+    app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true, transformOptions: { enableImplicitConversion: true } }));
   
     if (configService.get('NODE_ENV') !== 'production') {
         

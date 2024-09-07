@@ -1,14 +1,15 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiBearerAuth, ApiCreatedResponse, ApiForbiddenResponse, ApiNoContentResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { BadRequestDto } from 'src/libs/dtos/bad-request.dto';
 import { CommonErrorDto } from 'src/libs/dtos/common-error.dto';
 import { RolesGuard } from 'src/libs/guards/roles.guard';
-import { ERole } from '@prisma/client';
+import { ERole, SubCategory } from '@prisma/client';
 import { Roles } from 'src/libs/decorators/roles.decorator';
 import { SubCategoriesService } from './sub-categories.service';
 import { SubCategoryDto } from './dtos/sub-category.dto';
 import { CreateSubCategoryDto } from './dtos/create-sub-category.dto';
 import { UpdateSubCategoryDto } from './dtos/update-sub-category.dto';
+import { PaginatedRequestDto } from 'src/libs/dtos/paginated-request.dto';
 
 @Controller('categories/:categoryId/sub-categories')
 @ApiTags('SubCategories')
@@ -23,12 +24,8 @@ export class SubCategoriesController {
         type: SubCategoryDto
     })
     @ApiBadRequestResponse({
-        description: 'Validation error',
+        description: 'Validation error or id validation error',
         type: BadRequestDto
-    })
-    @ApiBadRequestResponse({
-        description: 'Id validation error',
-        type: CommonErrorDto
     })
     @ApiUnauthorizedResponse({
         description: 'Unauthorized',
@@ -42,7 +39,9 @@ export class SubCategoriesController {
     @Roles([ERole.ADMIN])
     async createSubCategory(@Param('categoryId', ParseIntPipe) categoryId: number, @Body() data: CreateSubCategoryDto): Promise<SubCategoryDto> {
 
-        return this.service.createSubCategory(categoryId, data);
+        let subCategory: SubCategory = await this.service.createSubCategory(categoryId, data);
+
+        return new SubCategoryDto(subCategory);
     }
   
     @Get()
@@ -55,9 +54,11 @@ export class SubCategoriesController {
         description: 'Id validation error',
         type: CommonErrorDto
     })
-    async findSubCategoriesByCategoryId(@Param('categoryId', ParseIntPipe) categoryId: number): Promise<SubCategoryDto[]> {
+    async findSubCategoriesByCategoryId(@Param('categoryId', ParseIntPipe) categoryId: number, @Query() filterData: PaginatedRequestDto): Promise<SubCategoryDto[]> {
 
-        return this.service.findSubCategoriesByCategoryId(categoryId);
+        let subCategories: SubCategory[] = await this.service.findSubCategoriesByCategoryId(categoryId, filterData);
+
+        return subCategories.map(sc => new SubCategoryDto(sc));
     }
   
     @Get(':subCategoryId')
@@ -73,9 +74,11 @@ export class SubCategoriesController {
         description: 'Not found',
         type: CommonErrorDto
     })
-    async findSubCategoryById(@Param('categoryId', ParseIntPipe) categoryId: number, @Param('subCategoryId', ParseIntPipe) subCategoryId: number): Promise<SubCategoryDto> {
+    async findSubCategoryById(@Param('subCategoryId', ParseIntPipe) subCategoryId: number): Promise<SubCategoryDto> {
 
-        return this.service.findSubCategoryById(subCategoryId);
+        let subCategory: SubCategory = await this.service.findSubCategoryById(subCategoryId);
+
+        return new SubCategoryDto(subCategory);
     }
   
     @Patch(':subCategoryId')
@@ -84,12 +87,8 @@ export class SubCategoriesController {
         type: SubCategoryDto
     })
     @ApiBadRequestResponse({
-        description: 'Validation error',
+        description: 'Validation error or id validation error',
         type: BadRequestDto
-    })
-    @ApiBadRequestResponse({
-        description: 'Id validation error',
-        type: CommonErrorDto
     })
     @ApiUnauthorizedResponse({
         description: 'Unauthorized',
@@ -107,7 +106,9 @@ export class SubCategoriesController {
     @Roles([ERole.ADMIN])
     async updateSubCategory(@Param('categoryId', ParseIntPipe) categoryId: number, @Param('subCategoryId', ParseIntPipe) subCategoryId: number, @Body() data: UpdateSubCategoryDto): Promise<SubCategoryDto> {
 
-        return this.service.updateSubCategory(categoryId, subCategoryId, data);
+        let subCategory: SubCategory = await this.service.updateSubCategory(categoryId, subCategoryId, data);
+
+        return new SubCategoryDto(subCategory);
     }
   
     @Delete(':subCategoryId')
@@ -133,7 +134,7 @@ export class SubCategoriesController {
     })
     @UseGuards(RolesGuard)
     @Roles([ERole.ADMIN])
-    async deleteSubCategory(@Param('categoryId', ParseIntPipe) categoryId: number, @Param('subCategoryId', ParseIntPipe) subCategoryId: number): Promise<void> {
+    async deleteSubCategory(@Param('subCategoryId', ParseIntPipe) subCategoryId: number): Promise<void> {
 
         await this.service.deleteSubCategory(subCategoryId);
     }

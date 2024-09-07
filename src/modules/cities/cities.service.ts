@@ -2,17 +2,18 @@ import { Injectable } from '@nestjs/common';
 import { CreateCityDto } from 'src/modules/cities/dtos/create-city.dto';
 import { PrismaService } from 'src/libs/services/prisma.service';
 import { ICitiesService } from './cities';
-import { CityDto } from 'src/modules/cities/dtos/city.dto';
 import { UpdateCityDto } from 'src/modules/cities/dtos/update-city.dto';
+import { City } from '@prisma/client';
+import { PaginatedRequestDto } from 'src/libs/dtos/paginated-request.dto';
 
 @Injectable()
 export class CitiesService implements ICitiesService {
 
     constructor(private readonly prisma: PrismaService) {}
 
-    async createCity(regionId: number, { title }: CreateCityDto): Promise<CityDto> {
+    async createCity(regionId: number, { title }: CreateCityDto): Promise<City> {
 
-        const city = await this.prisma.city.create({
+        return this.prisma.city.create({
             data: {
                 title,
                 regionId
@@ -23,13 +24,11 @@ export class CitiesService implements ICitiesService {
                 regionId: true
             }
         });
-
-        return new CityDto(city);
     }
 
-    async findCitiesByRegionId(regionId: number): Promise<CityDto[]> {
+    async findCitiesByRegionId(regionId: number, { limit, offset }: PaginatedRequestDto): Promise<City[]> {
 
-        const cities = await this.prisma.city.findMany({
+        return this.prisma.city.findMany({
             where: {
                 regionId
             },
@@ -37,15 +36,15 @@ export class CitiesService implements ICitiesService {
                 id: true,
                 title: true,
                 regionId: true
-            }
+            },
+            skip: offset,
+            take: limit
         });
-
-        return cities.map(c => new CityDto(c));
     }
 
-    async findCityById(cityId: number): Promise<CityDto> {
+    async findCityById(cityId: number): Promise<City> {
 
-        const city = await this.prisma.city.findUniqueOrThrow({
+        return this.prisma.city.findUniqueOrThrow({
             where: {
                 id: cityId
             },
@@ -55,13 +54,11 @@ export class CitiesService implements ICitiesService {
                 regionId: true
             }
         });
-
-        return new CityDto(city);
     }
 
-    async updateCity(regionId: number, cityId: number, { title }: UpdateCityDto): Promise<CityDto> {
+    async updateCity(regionId: number, cityId: number, { title }: UpdateCityDto): Promise<City> {
 
-        const updatedCity = await this.prisma.city.update({
+        return this.prisma.city.update({
             where: {
                 id: cityId
             },
@@ -75,8 +72,6 @@ export class CitiesService implements ICitiesService {
                 regionId: true
             }
         });
-        
-        return new CityDto(updatedCity);
     }
 
     async deleteCity(cityId: number): Promise<void> {

@@ -1,18 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { IRegionsService } from './regions';
 import { CreateRegionDto } from './dtos/create-region.dto';
-import { RegionDto } from './dtos/region.dto';
 import { UpdateRegionDto } from './dtos/update-region.dto';
 import { PrismaService } from 'src/libs/services/prisma.service';
+import { Region } from '@prisma/client';
+import { PaginatedRequestDto } from 'src/libs/dtos/paginated-request.dto';
 
 @Injectable()
 export class RegionsService implements IRegionsService {
 
     constructor(private readonly prisma: PrismaService) {}
 
-    async createRegion({ title }: CreateRegionDto): Promise<RegionDto> {
+    async createRegion({ title }: CreateRegionDto): Promise<Region> {
 
-        const region = await this.prisma.region.create({
+        return this.prisma.region.create({
             data: {
                 title
             },
@@ -21,25 +22,23 @@ export class RegionsService implements IRegionsService {
                 title: true
             }
         });
-
-        return new RegionDto(region);
     }
 
-    async findAllRegions(): Promise<RegionDto[]> {
+    async findAllRegions({ limit, offset }: PaginatedRequestDto): Promise<Region[]> {
 
-        const regions = await this.prisma.region.findMany({
+        return this.prisma.region.findMany({
             select: {
                 id: true,
                 title: true
-            }
+            },
+            skip: offset,
+            take: limit
         });
-
-        return regions.map(r => new RegionDto(r));
     }
 
-    async findRegionById(id: number): Promise<RegionDto> {
+    async findRegionById(id: number): Promise<Region> {
 
-        const region = await this.prisma.region.findUniqueOrThrow({
+        return this.prisma.region.findUniqueOrThrow({
             where: {
                 id
             },
@@ -47,15 +46,12 @@ export class RegionsService implements IRegionsService {
                 id: true,
                 title: true
             }
-            
         });
-
-        return new RegionDto(region);
     }
 
-    async updateRegion(id: number, { title }: UpdateRegionDto): Promise<RegionDto> {
+    async updateRegion(id: number, { title }: UpdateRegionDto): Promise<Region> {
 
-        const updatedRegion = await this.prisma.region.update({
+        return this.prisma.region.update({
             where: {
                 id
             },
@@ -67,8 +63,6 @@ export class RegionsService implements IRegionsService {
                 title: true
             }
         });
-        
-        return new RegionDto(updatedRegion);
     }
 
     async deleteRegion(id: number): Promise<void> {

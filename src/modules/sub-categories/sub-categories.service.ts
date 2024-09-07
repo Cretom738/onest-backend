@@ -1,18 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/libs/services/prisma.service';
 import { ISubCategoriesService } from './sub-categories';
-import { SubCategoryDto } from './dtos/sub-category.dto';
 import { CreateSubCategoryDto } from './dtos/create-sub-category.dto';
 import { UpdateSubCategoryDto } from './dtos/update-sub-category.dto';
+import { SubCategory } from '@prisma/client';
+import { PaginatedRequestDto } from 'src/libs/dtos/paginated-request.dto';
 
 @Injectable()
 export class SubCategoriesService implements ISubCategoriesService {
 
     constructor(private readonly prisma: PrismaService) {}
 
-    async createSubCategory(categoryId: number, { title }: CreateSubCategoryDto): Promise<SubCategoryDto> {
+    async createSubCategory(categoryId: number, { title }: CreateSubCategoryDto): Promise<SubCategory> {
 
-        const subCategory = await this.prisma.subCategory.create({
+        return this.prisma.subCategory.create({
             data: {
                 title,
                 categoryId
@@ -23,13 +24,11 @@ export class SubCategoriesService implements ISubCategoriesService {
                 categoryId: true
             }
         });
-
-        return new SubCategoryDto(subCategory);
     }
 
-    async findSubCategoriesByCategoryId(categoryId: number): Promise<SubCategoryDto[]> {
+    async findSubCategoriesByCategoryId(categoryId: number, { limit, offset }: PaginatedRequestDto): Promise<SubCategory[]> {
 
-        const subCategories = await this.prisma.subCategory.findMany({
+        return this.prisma.subCategory.findMany({
             where: {
                 categoryId
             },
@@ -37,15 +36,15 @@ export class SubCategoriesService implements ISubCategoriesService {
                 id: true,
                 title: true,
                 categoryId: true
-            }
+            },
+            skip: offset,
+            take: limit
         });
-
-        return subCategories.map(sc => new SubCategoryDto(sc));
     }
 
-    async findSubCategoryById(subCategoryId: number): Promise<SubCategoryDto> {
+    async findSubCategoryById(subCategoryId: number): Promise<SubCategory> {
 
-        const subCategory = await this.prisma.subCategory.findUniqueOrThrow({
+        return this.prisma.subCategory.findUniqueOrThrow({
             where: {
                 id: subCategoryId
             },
@@ -55,13 +54,11 @@ export class SubCategoriesService implements ISubCategoriesService {
                 categoryId: true
             }
         });
-
-        return new SubCategoryDto(subCategory);
     }
 
-    async updateSubCategory(categoryId: number, subCategoryId: number, { title }: UpdateSubCategoryDto): Promise<SubCategoryDto> {
+    async updateSubCategory(categoryId: number, subCategoryId: number, { title }: UpdateSubCategoryDto): Promise<SubCategory> {
 
-        const updatedSubCategory = await this.prisma.subCategory.update({
+        return this.prisma.subCategory.update({
             where: {
                 id: subCategoryId
             },
@@ -75,8 +72,6 @@ export class SubCategoriesService implements ISubCategoriesService {
                 categoryId: true
             }
         });
-        
-        return new SubCategoryDto(updatedSubCategory);
     }
 
     async deleteSubCategory(subCategoryId: number): Promise<void> {

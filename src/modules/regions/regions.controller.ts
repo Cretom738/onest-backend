@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiBearerAuth, ApiCreatedResponse, ApiForbiddenResponse, ApiNoContentResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { RegionsService } from './regions.service';
 import { RegionDto } from './dtos/region.dto';
@@ -7,8 +7,9 @@ import { CreateRegionDto } from './dtos/create-region.dto';
 import { CommonErrorDto } from 'src/libs/dtos/common-error.dto';
 import { UpdateRegionDto } from './dtos/update-region.dto';
 import { RolesGuard } from 'src/libs/guards/roles.guard';
-import { ERole } from '@prisma/client';
+import { ERole, Region } from '@prisma/client';
 import { Roles } from 'src/libs/decorators/roles.decorator';
+import { PaginatedRequestDto } from 'src/libs/dtos/paginated-request.dto';
 
 @Controller('regions')
 @ApiTags('Regions')
@@ -38,7 +39,9 @@ export class RegionsController {
     @Roles([ERole.ADMIN])
     async createRegion(@Body() data: CreateRegionDto): Promise<RegionDto> {
 
-        return this.service.createRegion(data);
+        let region: Region = await this.service.createRegion(data);
+
+        return new RegionDto(region);
     }
   
     @Get()
@@ -47,9 +50,11 @@ export class RegionsController {
         type: RegionDto,
         isArray: true
     })
-    async findAllRegions(): Promise<RegionDto[]> {
+    async findAllRegions(@Query() filterData: PaginatedRequestDto): Promise<RegionDto[]> {
 
-        return this.service.findAllRegions();
+        let regions: Region[] = await this.service.findAllRegions(filterData);
+
+        return regions.map(r => new RegionDto(r));
     }
   
     @Get(':id')
@@ -67,7 +72,9 @@ export class RegionsController {
     })
     async findRegionById(@Param('id', ParseIntPipe) id: number): Promise<RegionDto> {
 
-        return this.service.findRegionById(id);
+        let region: Region = await this.service.findRegionById(id);
+
+        return new RegionDto(region);
     }
   
     @Patch(':id')
@@ -76,12 +83,8 @@ export class RegionsController {
         type: RegionDto
     })
     @ApiBadRequestResponse({
-        description: 'Validation error',
+        description: 'Validation error or id validation error',
         type: BadRequestDto
-    })
-    @ApiBadRequestResponse({
-        description: 'Id validation error',
-        type: CommonErrorDto
     })
     @ApiUnauthorizedResponse({
         description: 'Unauthorized',
@@ -99,7 +102,9 @@ export class RegionsController {
     @Roles([ERole.ADMIN])
     async updateRegion(@Param('id', ParseIntPipe) id: number, @Body() data: UpdateRegionDto): Promise<RegionDto> {
 
-        return this.service.updateRegion(id, data);
+        let region: Region = await this.service.updateRegion(id, data);
+
+        return new RegionDto(region);
     }
   
     @Delete(':id')

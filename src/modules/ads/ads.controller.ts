@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { AdsService } from './ads.service';
 import { UserInfo } from 'src/libs/decorators/user-info.decorator';
 import { IJwtPayload } from 'src/libs/interfaces/jwt-payload.interface';
@@ -6,10 +6,13 @@ import { CreateAdDto } from './dtos/create-ad.dto';
 import { AdDto } from './dtos/ad.dto';
 import { Ad } from '@prisma/client';
 import { AuthGuard } from 'src/libs/guards/auth.guard';
-import { ApiBadRequestResponse, ApiBearerAuth, ApiForbiddenResponse, ApiNoContentResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { ApiBadRequestResponse, ApiBearerAuth, ApiCreatedResponse, ApiForbiddenResponse, ApiNoContentResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { BadRequestDto } from 'src/libs/dtos/bad-request.dto';
 import { CommonErrorDto } from 'src/libs/dtos/common-error.dto';
 import { UpdateAdDto } from './dtos/update-ad.dto';
+import { RecommendedAdsDto } from './dtos/recommended-ads.dto';
+import { FilterAdDto } from './dtos/filter-ad.dto';
+import { TotalDto } from 'src/libs/dtos/total-dto';
 
 @Controller('ads')
 @ApiTags('Ads')
@@ -19,7 +22,7 @@ export class AdsController {
     constructor(private readonly service: AdsService) {}
 
     @Post()
-    @ApiOkResponse({
+    @ApiCreatedResponse({
         description: 'create new ad',
         type: AdDto
     })
@@ -45,11 +48,11 @@ export class AdsController {
         type: AdDto,
         isArray: true
     })
-    async findAllAds(): Promise<AdDto[]> {
+    async findAllAds(@Query() filterData: FilterAdDto): Promise<TotalDto<AdDto>> {
 
-        const ads: Ad[] = await this.service.findAllAds();
+        const ads: Ad[] = await this.service.findAllAds(filterData);
 
-        return ads.map(a => new AdDto(a));
+        return new TotalDto(ads.map(a => new AdDto(a)));
     }
   
     @Get(':id')
@@ -78,12 +81,8 @@ export class AdsController {
         type: AdDto
     })
     @ApiBadRequestResponse({
-        description: 'Validation error',
+        description: 'Validation error or id validation error',
         type: BadRequestDto
-    })
-    @ApiBadRequestResponse({
-        description: 'Id validation error',
-        type: CommonErrorDto
     })
     @ApiUnauthorizedResponse({
         description: 'Unauthorized',
@@ -130,5 +129,18 @@ export class AdsController {
     async deleteAd(@UserInfo() { profileId }: IJwtPayload, @Param('id', ParseIntPipe) id: number): Promise<void> {
 
         await this.service.deleteAd(profileId, id);
+    }
+
+    @Get(':id/recommendations')
+    @ApiOkResponse({
+        description: 'Get list of recommended ads',
+        type: AdDto,
+        isArray: true
+    })
+    async getRecommendedAds(@Param('id', ParseIntPipe) id: number, @Query() recommendedAdsData: RecommendedAdsDto): Promise<TotalDto<AdDto>> {
+
+        const ads: Ad[] = await this.service.getRecommendedAds(id, recommendedAdsData); 
+
+        return new TotalDto(ads.map(a => new AdDto(a)));
     }
 }
