@@ -53,7 +53,7 @@ export class AdsController {
         type: BadRequestDto
     })
     async findAllAds(@Query() filterData: FilterAdDto, @UserInfo() userData: IJwtPayload): Promise<PaginatedResponseDto<AdDto>> {
-
+ 
         const [ ads, count ] = await this.service.findAllAds(filterData, userData?.profileId);
 
         return new PaginatedResponseDto({

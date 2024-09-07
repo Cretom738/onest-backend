@@ -60,6 +60,8 @@ model Profile {
   updatedAt    DateTime      @updatedAt @map("updated_at")
   socialMedias SocialMedia[]
   ads          Ad[]
+  reviews      Review[]      @relation("profile")
+  reviewers    Review[]      @relation("reviewer")
 
   @@map("profiles")
 }
@@ -89,7 +91,7 @@ model City {
   regionId Int       @map("region_id")
   region   Region    @relation(fields: [regionId], references: [id], onDelete: Cascade)
   profiles Profile[]
-  ads       Ad[]
+  ads      Ad[]
 
   @@map("cities")
 }
@@ -120,8 +122,8 @@ model Ad {
 }
 
 model Category {
-  id          Int           @id @default(autoincrement())
-  title       String
+  id            Int           @id @default(autoincrement())
+  title         String
   subCategories SubCategory[]
 
   @@map("categories")
@@ -132,9 +134,21 @@ model SubCategory {
   title      String
   categoryId Int      @map("category_id")
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  ads         Ad[]
+  ads        Ad[]
 
   @@map("sub_categories")
+}
+
+model Review {
+  id                Int     @id @default(autoincrement())
+  description       String
+  starCount         Int     @map("star_count")
+  profileId         Int     @map("profile_id")
+  profile           Profile @relation("profile", fields: [profileId], references: [id], onDelete: Cascade)
+  reviewerProfileId Int     @map("reviewer_profile_id")
+  reviewerProfile   Profile @relation("reviewer", fields: [reviewerProfileId], references: [id], onDelete: Cascade)
+
+  @@map("reviews")
 }
 
 enum ERole {
