@@ -7,7 +7,7 @@ export interface ICategoriesService {
 
     createCategory(data: CreateCategoryDto): Promise<Category>;
 
-    findAllCategories(filterData: PaginatedRequestDto): Promise<Category[]>;
+    findAllCategories(): Promise<Category[]>;
 
     findCategoryById(id: number): Promise<Category>;
 

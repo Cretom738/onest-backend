@@ -7,7 +7,7 @@ export interface ISubCategoriesService {
 
     createSubCategory(categoryId: number, data: CreateSubCategoryDto): Promise<SubCategory>;
 
-    findSubCategoriesByCategoryId(categoryId: number, filterData: PaginatedRequestDto): Promise<SubCategory[]>;
+    findSubCategoriesByCategoryId(categoryId: number): Promise<SubCategory[]>;
 
     findSubCategoryById(subCategoryId: number): Promise<SubCategory>;
 

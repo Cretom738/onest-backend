@@ -8,7 +8,7 @@ export interface IAdsService {
 
     createAd(profileId: number, data: CreateAdDto): Promise<Ad>;
 
-    findAllAds(filterData: FilterAdDto): Promise<Ad[]>;
+    findAllAds(filterData: FilterAdDto, profileId: number): Promise<[ Ad[], number ]>;
 
     findAdById(id: number): Promise<Ad>;
 

@@ -26,7 +26,7 @@ export class CitiesService implements ICitiesService {
         });
     }
 
-    async findCitiesByRegionId(regionId: number, { limit, offset }: PaginatedRequestDto): Promise<City[]> {
+    async findCitiesByRegionId(regionId: number): Promise<City[]> {
 
         return this.prisma.city.findMany({
             where: {
@@ -36,9 +36,7 @@ export class CitiesService implements ICitiesService {
                 id: true,
                 title: true,
                 regionId: true
-            },
-            skip: offset,
-            take: limit
+            }
         });
     }
 

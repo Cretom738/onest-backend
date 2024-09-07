@@ -26,7 +26,7 @@ export class SubCategoriesService implements ISubCategoriesService {
         });
     }
 
-    async findSubCategoriesByCategoryId(categoryId: number, { limit, offset }: PaginatedRequestDto): Promise<SubCategory[]> {
+    async findSubCategoriesByCategoryId(categoryId: number): Promise<SubCategory[]> {
 
         return this.prisma.subCategory.findMany({
             where: {
@@ -36,9 +36,7 @@ export class SubCategoriesService implements ISubCategoriesService {
                 id: true,
                 title: true,
                 categoryId: true
-            },
-            skip: offset,
-            take: limit
+            }
         });
     }
 

@@ -12,7 +12,7 @@ import { CommonErrorDto } from 'src/libs/dtos/common-error.dto';
 import { UpdateAdDto } from './dtos/update-ad.dto';
 import { RecommendedAdsDto } from './dtos/recommended-ads.dto';
 import { FilterAdDto } from './dtos/filter-ad.dto';
-import { TotalDto } from 'src/libs/dtos/total-dto';
+import { PaginatedResponseDto } from 'src/libs/dtos/paginated-response.dto';
 
 @Controller('ads')
 @ApiTags('Ads')
@@ -48,11 +48,20 @@ export class AdsController {
         type: AdDto,
         isArray: true
     })
-    async findAllAds(@Query() filterData: FilterAdDto): Promise<TotalDto<AdDto>> {
+    @ApiBadRequestResponse({
+        description: 'Validation error',
+        type: BadRequestDto
+    })
+    async findAllAds(@Query() filterData: FilterAdDto, @UserInfo() userData: IJwtPayload): Promise<PaginatedResponseDto<AdDto>> {
 
-        const ads: Ad[] = await this.service.findAllAds(filterData);
+        const [ ads, count ] = await this.service.findAllAds(filterData, userData?.profileId);
 
-        return new TotalDto(ads.map(a => new AdDto(a)));
+        return new PaginatedResponseDto({
+            result: ads.map(a => new AdDto(a)),
+            count,
+            offset: filterData.offset,
+            limit: filterData.limit
+        });
     }
   
     @Get(':id')
@@ -137,10 +146,10 @@ export class AdsController {
         type: AdDto,
         isArray: true
     })
-    async getRecommendedAds(@Param('id', ParseIntPipe) id: number, @Query() recommendedAdsData: RecommendedAdsDto): Promise<TotalDto<AdDto>> {
+    async getRecommendedAds(@Param('id', ParseIntPipe) id: number, @Query() recommendedAdsData: RecommendedAdsDto): Promise<AdDto[]> {
 
         const ads: Ad[] = await this.service.getRecommendedAds(id, recommendedAdsData); 
 
-        return new TotalDto(ads.map(a => new AdDto(a)));
+        return ads.map(a => new AdDto(a));
     }
 }

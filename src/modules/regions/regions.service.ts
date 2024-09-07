@@ -24,15 +24,13 @@ export class RegionsService implements IRegionsService {
         });
     }
 
-    async findAllRegions({ limit, offset }: PaginatedRequestDto): Promise<Region[]> {
+    async findAllRegions(): Promise<Region[]> {
 
         return this.prisma.region.findMany({
             select: {
                 id: true,
                 title: true
-            },
-            skip: offset,
-            take: limit
+            }
         });
     }
 

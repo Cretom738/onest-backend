@@ -3,6 +3,7 @@ import { ECondition } from "@prisma/client";
 import { Transform } from "class-transformer";
 import { IsEnum, IsNumber, IsOptional, Min } from "class-validator";
 import { PaginatedRequestDto } from "src/libs/dtos/paginated-request.dto";
+import { ERequestType } from "src/libs/types/type";
 
 export class FilterAdDto extends PaginatedRequestDto {
 
@@ -32,4 +33,9 @@ export class FilterAdDto extends PaginatedRequestDto {
     @IsNumber()
     @Min(0)
     minPrice: number;
+
+    @ApiPropertyOptional({ enum: ERequestType })
+    @IsEnum(ERequestType)
+    @IsOptional()
+    type: ERequestType = ERequestType.PUBLIC
 }

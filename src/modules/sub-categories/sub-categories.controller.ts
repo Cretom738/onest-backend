@@ -10,6 +10,7 @@ import { SubCategoryDto } from './dtos/sub-category.dto';
 import { CreateSubCategoryDto } from './dtos/create-sub-category.dto';
 import { UpdateSubCategoryDto } from './dtos/update-sub-category.dto';
 import { PaginatedRequestDto } from 'src/libs/dtos/paginated-request.dto';
+import { PaginatedResponseDto } from 'src/libs/dtos/paginated-response.dto';
 
 @Controller('categories/:categoryId/sub-categories')
 @ApiTags('SubCategories')
@@ -54,9 +55,9 @@ export class SubCategoriesController {
         description: 'Id validation error',
         type: CommonErrorDto
     })
-    async findSubCategoriesByCategoryId(@Param('categoryId', ParseIntPipe) categoryId: number, @Query() filterData: PaginatedRequestDto): Promise<SubCategoryDto[]> {
+    async findSubCategoriesByCategoryId(@Param('categoryId', ParseIntPipe) categoryId: number): Promise<SubCategoryDto[]> {
 
-        let subCategories: SubCategory[] = await this.service.findSubCategoriesByCategoryId(categoryId, filterData);
+        let subCategories: SubCategory[] = await this.service.findSubCategoriesByCategoryId(categoryId);
 
         return subCategories.map(sc => new SubCategoryDto(sc));
     }

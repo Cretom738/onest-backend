@@ -3,9 +3,11 @@ import { IAdsService } from './ads';
 import { CreateAdDto } from './dtos/create-ad.dto';
 import { UpdateAdDto } from './dtos/update-ad.dto';
 import { PrismaService } from 'src/libs/services/prisma.service';
-import { Ad } from '@prisma/client';
+import { Ad, Prisma } from '@prisma/client';
 import { RecommendedAdsDto } from './dtos/recommended-ads.dto';
 import { FilterAdDto } from './dtos/filter-ad.dto';
+import { ERequestType } from 'src/libs/types/type';
+import { BadRequestDto } from 'src/libs/dtos/bad-request.dto';
 
 @Injectable()
 export class AdsService implements IAdsService {
@@ -22,9 +24,11 @@ export class AdsService implements IAdsService {
         });
     }
 
-    async findAllAds({ subCategoryIds, conditions, cityIds, maxPrice, minPrice, limit, offset }: FilterAdDto): Promise<Ad[]> {
+    async findAllAds({ subCategoryIds, conditions, cityIds, maxPrice, minPrice, limit, offset, type }: FilterAdDto, profileId: number): Promise<[ Ad[], number ]> {
 
-        return this.prisma.ad.findMany({
+        if (type === ERequestType.PRIVATE && !profileId) throw new BadRequestDto();
+
+        const query: Prisma.AdFindManyArgs = {
             where: {
                 subCategoryId: {
                     in: subCategoryIds
@@ -37,10 +41,24 @@ export class AdsService implements IAdsService {
                     lte: maxPrice,
                     gte: minPrice
                 }
-            },
-            skip: offset,
-            take: limit
-        });
+            }
+        } 
+
+        if (profileId) query.where = {
+            ...query.where,
+            profileId
+        }
+
+        return this.prisma.$transaction([
+            this.prisma.ad.findMany({
+                ...query,
+                skip: offset,
+                take: limit
+            }),
+            this.prisma.ad.count({ 
+                where: query.where 
+            })
+        ]);
     }
 
     async findAdById(id: number): Promise<Ad> {

@@ -7,7 +7,7 @@ export interface ICitiesService {
 
     createCity(regionId: number, data: CreateCityDto): Promise<City>;
 
-    findCitiesByRegionId(regionId: number, filterData: PaginatedRequestDto): Promise<City[]>;
+    findCitiesByRegionId(regionId: number): Promise<City[]>;
 
     findCityById(cityId: number): Promise<City>;
 

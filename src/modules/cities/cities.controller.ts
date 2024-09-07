@@ -10,6 +10,7 @@ import { RolesGuard } from 'src/libs/guards/roles.guard';
 import { City, ERole } from '@prisma/client';
 import { Roles } from 'src/libs/decorators/roles.decorator';
 import { PaginatedRequestDto } from 'src/libs/dtos/paginated-request.dto';
+import { PaginatedResponseDto } from 'src/libs/dtos/paginated-response.dto';
 
 @Controller('regions/:regionId/cities')
 @ApiTags('Cities')
@@ -54,9 +55,9 @@ export class CitiesController {
         description: 'Id validation error',
         type: CommonErrorDto
     })
-    async findCitiesByRegionId(@Param('regionId', ParseIntPipe) regionId: number, @Query() filterData: PaginatedRequestDto): Promise<CityDto[]> {
+    async findCitiesByRegionId(@Param('regionId', ParseIntPipe) regionId: number): Promise<CityDto[]> {
 
-        let cities: City[] = await this.service.findCitiesByRegionId(regionId, filterData);
+        let cities: City[] = await this.service.findCitiesByRegionId(regionId);
 
         return cities.map(c => new CityDto(c));
     }

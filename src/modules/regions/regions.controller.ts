@@ -10,6 +10,7 @@ import { RolesGuard } from 'src/libs/guards/roles.guard';
 import { ERole, Region } from '@prisma/client';
 import { Roles } from 'src/libs/decorators/roles.decorator';
 import { PaginatedRequestDto } from 'src/libs/dtos/paginated-request.dto';
+import { PaginatedResponseDto } from 'src/libs/dtos/paginated-response.dto';
 
 @Controller('regions')
 @ApiTags('Regions')
@@ -50,9 +51,9 @@ export class RegionsController {
         type: RegionDto,
         isArray: true
     })
-    async findAllRegions(@Query() filterData: PaginatedRequestDto): Promise<RegionDto[]> {
+    async findAllRegions(): Promise<RegionDto[]> {
 
-        let regions: Region[] = await this.service.findAllRegions(filterData);
+        let regions: Region[] = await this.service.findAllRegions();
 
         return regions.map(r => new RegionDto(r));
     }

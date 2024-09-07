@@ -24,15 +24,13 @@ export class CategoriesService implements ICategoriesService {
         });
     }
 
-    async findAllCategories({ limit, offset }: PaginatedRequestDto): Promise<Category[]> {
+    async findAllCategories(): Promise<Category[]> {
 
         return this.prisma.category.findMany({
             select: {
                 id: true,
                 title: true
-            },
-            skip: offset,
-            take: limit
+            }
         });
     }
 

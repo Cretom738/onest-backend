@@ -9,7 +9,6 @@ import { Category, ERole } from '@prisma/client';
 import { Roles } from 'src/libs/decorators/roles.decorator';
 import { CreateCategoryDto } from 'src/modules/categories/dtos/create-category.dto';
 import { UpdateCategoryDto } from 'src/modules/categories/dtos/update-category.dto';
-import { PaginatedRequestDto } from 'src/libs/dtos/paginated-request.dto';
 
 @Controller('categories')
 @ApiTags('Categories')
@@ -50,9 +49,9 @@ export class CategoriesController {
         type: CategoryDto,
         isArray: true
     })
-    async findAllCategories(@Query() filterData: PaginatedRequestDto): Promise<CategoryDto[]> {
+    async findAllCategories(): Promise<CategoryDto[]> {
 
-        let categories: Category[] = await this.service.findAllCategories(filterData);
+        let categories: Category[] = await this.service.findAllCategories();
 
         return categories.map(c => new CategoryDto(c));
     }

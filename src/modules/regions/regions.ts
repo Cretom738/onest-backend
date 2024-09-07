@@ -7,7 +7,7 @@ export interface IRegionsService {
 
     createRegion(data: CreateRegionDto): Promise<Region>;
 
-    findAllRegions(filterData: PaginatedRequestDto): Promise<Region[]>;
+    findAllRegions(): Promise<Region[]>;
 
     findRegionById(id: number): Promise<Region>;
 
