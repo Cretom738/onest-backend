@@ -1,4 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { Prisma } from "@prisma/client";
 import { IsInt, IsNotEmpty, IsPositive, IsString, Max, Min } from "class-validator";
 
 export class CreateReviewDto {
@@ -8,11 +9,11 @@ export class CreateReviewDto {
     @IsNotEmpty()
     description: string;
 
-    @ApiProperty()
+    @ApiProperty({ type: 'decimal' })
     @IsInt()
     @Min(1)
     @Max(5)
-    starCount: number;
+    starCount: Prisma.Decimal;
 
     @ApiProperty()
     @IsInt()

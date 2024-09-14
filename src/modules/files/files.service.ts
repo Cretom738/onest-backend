@@ -8,7 +8,6 @@ import { Upload } from '@aws-sdk/lib-storage';
 @Injectable()
 export class FilesService implements IFilesService {
 
-    private static allowedFileExtensions: string[] = ['png', 'jpeg', 'webp'];
     private logger: Logger = new Logger(FilesService.name);
     private s3: S3;
 
@@ -27,13 +26,6 @@ export class FilesService implements IFilesService {
     }
 
     async uploadFile({ dataBuffer, fileName, contentType }: IFile): Promise<string> {
-
-        const fileExtension: string = contentType.split('.').pop();
-
-        if (!FilesService.allowedFileExtensions.includes(fileExtension.toLowerCase())) {
-
-            throw new BadRequestException('file.extension.not.allowed');
-        }
         
         const upload: Upload = new Upload({ 
             client: this.s3, 

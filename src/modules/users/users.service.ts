@@ -5,6 +5,8 @@ import { PrismaService } from 'src/libs/services/prisma.service';
 import { ERole } from '.prisma/client';
 import { ProfileDto } from 'src/modules/users/dtos/profile.dto';
 import { UpdateProfileDto } from 'src/modules/users/dtos/update-profile.dto';
+import { ProfileWithRelatedTable } from 'src/libs/types/prisma.type';
+import { IAverageStarCount } from 'src/libs/interfaces/average-stars-count.interface';
 
 @Injectable()
 export class UsersService implements IUsersService {
@@ -67,22 +69,30 @@ export class UsersService implements IUsersService {
         })).id;
     }
     
-    async getUserProfile(userId: number): Promise<ProfileDto> {
+    async getUserProfile(userId: number, profileId: number): Promise<[ ProfileWithRelatedTable, IAverageStarCount ]> {
 
-        const profile = await this.prisma.profile.findUnique({
-            where: {
-                userId
-            },
-            include: {
-                user: true,
-                socialMedias: true
-            }
-        });
-
-        return new ProfileDto(profile);
+        return this.prisma.$transaction([
+            this.prisma.profile.findUnique({
+                where: {
+                    userId
+                },
+                include: {
+                    user: true,
+                    socialMedias: true
+                }
+            }),
+            this.prisma.review.aggregate({
+                where: {
+                    profileId
+                },
+                _avg: {
+                    starCount: true
+                }
+            })
+        ]);
     }
     
-    async updateUserProfile(userId: number, { bio, phone, address, web, socialMedias, cityId }: UpdateProfileDto): Promise<void> {
+    async updateUserProfile(userId: number, { bio, phone, address, web, socialMedias, cityId, avatarUrl }: UpdateProfileDto): Promise<void> {
         
         await this.prisma.profile.update({
             where: {
@@ -93,7 +103,8 @@ export class UsersService implements IUsersService {
                 phone,
                 address,
                 web,
-                cityId
+                cityId,
+                avatarUrl
             }
         });
 

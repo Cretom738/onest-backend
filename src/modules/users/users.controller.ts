@@ -27,9 +27,11 @@ export class UsersController {
         description: 'Unathorized',
         type: CommonErrorDto
     })
-    async getUserProfile(@UserInfo() { userId }: IJwtPayload): Promise<ProfileDto> {
+    async getUserProfile(@UserInfo() { userId, profileId }: IJwtPayload): Promise<ProfileDto> {
 
-        return this.service.getUserProfile(userId);
+        const [ profile, averageStarCount ] = await this.service.getUserProfile(userId, profileId);
+
+        return new ProfileDto(profile, averageStarCount._avg.starCount);
     }
 
     @Patch('profile') 
