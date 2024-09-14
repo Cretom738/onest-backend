@@ -7,4 +7,25 @@ const profileWithRelatedTable = Prisma.validator<Prisma.ProfileDefaultArgs>()({
     }
 });
 
-export type ProfileWithRelatedTable = Prisma.ProfileGetPayload<typeof profileWithRelatedTable>
+export type ProfileWithRelatedTable = Prisma.ProfileGetPayload<typeof profileWithRelatedTable>;
+
+const reviewWithRelatedTable = Prisma.validator<Prisma.ReviewDefaultArgs>()({
+    select: {
+        id: true,
+        description: true,
+        starCount: true,
+        profileId: true,
+        reviewerProfileId: true,
+        reviewerProfile: {
+            select: {
+                user: {
+                    select: {
+                        fullName: true
+                    }
+                }
+            }
+        }
+    }
+});
+
+export type ReviewWithRelatedTable = Prisma.ReviewGetPayload<typeof reviewWithRelatedTable>;

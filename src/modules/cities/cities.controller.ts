@@ -40,7 +40,7 @@ export class CitiesController {
     @Roles([ERole.ADMIN])
     async createCity(@Param('regionId', ParseIntPipe) regionId: number, @Body() data: CreateCityDto): Promise<CityDto> {
 
-        let city: City = await this.service.createCity(regionId, data);
+        const city: City = await this.service.createCity(regionId, data);
 
         return new CityDto(city);
     }
@@ -57,7 +57,7 @@ export class CitiesController {
     })
     async findCitiesByRegionId(@Param('regionId', ParseIntPipe) regionId: number): Promise<CityDto[]> {
 
-        let cities: City[] = await this.service.findCitiesByRegionId(regionId);
+        const cities: City[] = await this.service.findCitiesByRegionId(regionId);
 
         return cities.map(c => new CityDto(c));
     }
@@ -77,7 +77,7 @@ export class CitiesController {
     })
     async findCityById(@Param('cityId', ParseIntPipe) cityId: number): Promise<CityDto> {
 
-        let city: City = await this.service.findCityById(cityId);
+        const city: City = await this.service.findCityById(cityId);
 
         return new CityDto(city);
     }
@@ -107,7 +107,7 @@ export class CitiesController {
     @Roles([ERole.ADMIN])
     async updateCity(@Param('regionId', ParseIntPipe) regionId: number, @Param('cityId', ParseIntPipe) cityId: number, @Body() data: UpdateCityDto): Promise<CityDto> {
 
-        let city: City = await this.service.updateCity(regionId, cityId, data);
+        const city: City = await this.service.updateCity(regionId, cityId, data);
 
         return new CityDto(city);
     }

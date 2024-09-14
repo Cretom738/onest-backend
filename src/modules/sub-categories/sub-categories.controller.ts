@@ -40,7 +40,7 @@ export class SubCategoriesController {
     @Roles([ERole.ADMIN])
     async createSubCategory(@Param('categoryId', ParseIntPipe) categoryId: number, @Body() data: CreateSubCategoryDto): Promise<SubCategoryDto> {
 
-        let subCategory: SubCategory = await this.service.createSubCategory(categoryId, data);
+        const subCategory: SubCategory = await this.service.createSubCategory(categoryId, data);
 
         return new SubCategoryDto(subCategory);
     }
@@ -57,7 +57,7 @@ export class SubCategoriesController {
     })
     async findSubCategoriesByCategoryId(@Param('categoryId', ParseIntPipe) categoryId: number): Promise<SubCategoryDto[]> {
 
-        let subCategories: SubCategory[] = await this.service.findSubCategoriesByCategoryId(categoryId);
+        const subCategories: SubCategory[] = await this.service.findSubCategoriesByCategoryId(categoryId);
 
         return subCategories.map(sc => new SubCategoryDto(sc));
     }
@@ -77,7 +77,7 @@ export class SubCategoriesController {
     })
     async findSubCategoryById(@Param('subCategoryId', ParseIntPipe) subCategoryId: number): Promise<SubCategoryDto> {
 
-        let subCategory: SubCategory = await this.service.findSubCategoryById(subCategoryId);
+        const subCategory: SubCategory = await this.service.findSubCategoryById(subCategoryId);
 
         return new SubCategoryDto(subCategory);
     }
@@ -107,7 +107,7 @@ export class SubCategoriesController {
     @Roles([ERole.ADMIN])
     async updateSubCategory(@Param('categoryId', ParseIntPipe) categoryId: number, @Param('subCategoryId', ParseIntPipe) subCategoryId: number, @Body() data: UpdateSubCategoryDto): Promise<SubCategoryDto> {
 
-        let subCategory: SubCategory = await this.service.updateSubCategory(categoryId, subCategoryId, data);
+        const subCategory: SubCategory = await this.service.updateSubCategory(categoryId, subCategoryId, data);
 
         return new SubCategoryDto(subCategory);
     }

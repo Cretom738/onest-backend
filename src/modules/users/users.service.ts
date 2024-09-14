@@ -1,13 +1,9 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { IUsersService } from './users';
 import { CreateUserDto } from 'src/modules/users/dtos/create-user.dto';
-import { AuthDto } from 'src/modules/auth/dtos/auth.dto';
 import { PrismaService } from 'src/libs/services/prisma.service';
 import { ERole } from '.prisma/client';
-import { NotFoundError } from 'rxjs';
 import { ProfileDto } from 'src/modules/users/dtos/profile.dto';
-import { isArray } from 'class-validator';
-import { SocialMediaDto } from './dtos/social-media.dto';
 import { UpdateProfileDto } from 'src/modules/users/dtos/update-profile.dto';
 
 @Injectable()
@@ -34,6 +30,7 @@ export class UsersService implements IUsersService {
     }
 
     async findUserById(id: number): Promise<any> {
+        
         throw new Error('Method not implemented.');
     }
 

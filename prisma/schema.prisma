@@ -148,6 +148,7 @@ model Review {
   reviewerProfileId Int     @map("reviewer_profile_id")
   reviewerProfile   Profile @relation("reviewer", fields: [reviewerProfileId], references: [id], onDelete: Cascade)
 
+  @@unique([profileId, reviewerProfileId])
   @@map("reviews")
 }
 

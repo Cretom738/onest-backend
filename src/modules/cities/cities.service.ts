@@ -4,7 +4,6 @@ import { PrismaService } from 'src/libs/services/prisma.service';
 import { ICitiesService } from './cities';
 import { UpdateCityDto } from 'src/modules/cities/dtos/update-city.dto';
 import { City } from '@prisma/client';
-import { PaginatedRequestDto } from 'src/libs/dtos/paginated-request.dto';
 
 @Injectable()
 export class CitiesService implements ICitiesService {

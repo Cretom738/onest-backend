@@ -13,6 +13,8 @@ import { CitiesModule } from './cities/cities.module';
 import { CategoriesModule } from './categories/categories.module';
 import { SubCategoriesModule } from './sub-categories/sub-categories.module';
 import { AdsModule } from './ads/ads.module';
+import { FilesModule } from './files/files.module';
+import { ReviewsModule } from './reviews/reviews.module';
 
 @Module({
   imports: [
@@ -29,7 +31,9 @@ import { AdsModule } from './ads/ads.module';
     CitiesModule,
     CategoriesModule,
     SubCategoriesModule,
-    AdsModule
+    AdsModule,
+    FilesModule,
+    ReviewsModule
   ]
 })
 export class AppModule implements NestModule {

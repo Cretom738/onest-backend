@@ -7,7 +7,6 @@ import { ProfileDto } from 'src/modules/users/dtos/profile.dto';
 import { AuthGuard } from 'src/libs/guards/auth.guard';
 import { SuccessDto } from 'src/libs/dtos/success-dto';
 import { CommonErrorDto } from 'src/libs/dtos/common-error.dto';
-import { NotFoundError } from 'rxjs';
 import { BadRequestDto } from 'src/libs/dtos/bad-request.dto';
 import { UpdateProfileDto } from 'src/modules/users/dtos/update-profile.dto';
 

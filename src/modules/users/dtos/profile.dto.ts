@@ -1,8 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { ArrayMaxSize, IsArray, IsOptional, IsPhoneNumber, IsString, Length, Max, Min, ValidateNested } from "class-validator";
 import { ProfileWithRelatedTable } from "../../../libs/types/prisma.type";
 import { SocialMediaDto } from "./social-media.dto";
-import { Type } from "class-transformer";
 import { UpdateProfileDto } from "./update-profile.dto";
 
 export class ProfileDto extends UpdateProfileDto {

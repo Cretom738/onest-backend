@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, Logger } from '@nestjs/common';
 import { IAdsService } from './ads';
 import { CreateAdDto } from './dtos/create-ad.dto';
 import { UpdateAdDto } from './dtos/update-ad.dto';
@@ -7,7 +7,6 @@ import { Ad, Prisma } from '@prisma/client';
 import { RecommendedAdsDto } from './dtos/recommended-ads.dto';
 import { FilterAdDto } from './dtos/filter-ad.dto';
 import { ERequestType } from 'src/libs/types/type';
-import { BadRequestDto } from 'src/libs/dtos/bad-request.dto';
 
 @Injectable()
 export class AdsService implements IAdsService {
@@ -26,7 +25,7 @@ export class AdsService implements IAdsService {
 
     async findAllAds({ subCategoryIds, conditions, cityIds, maxPrice, minPrice, limit, offset, type }: FilterAdDto, profileId: number): Promise<[ Ad[], number ]> {
 
-        if (type === ERequestType.PRIVATE && !profileId) throw new BadRequestDto();
+        if (type === ERequestType.PRIVATE && !profileId) throw new BadRequestException();
 
         const query: Prisma.AdFindManyArgs = {
             where: {

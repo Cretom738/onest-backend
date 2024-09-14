@@ -43,9 +43,11 @@ export class AuthMiddleware implements NestMiddleware {
 
                 return next();
             }
+            
             req['isUserAuthenticated'] = true;
             
             req['userInfo'] = payload;
+
         } catch (error) {
 
             this.logger.error(error.message);

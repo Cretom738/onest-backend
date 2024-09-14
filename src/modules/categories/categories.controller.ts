@@ -38,7 +38,7 @@ export class CategoriesController {
     @Roles([ERole.ADMIN])
     async createCategory(@Body() data: CreateCategoryDto): Promise<CategoryDto> {
 
-        let category: Category = await this.service.createCategory(data);
+        const category: Category = await this.service.createCategory(data);
 
         return new CategoryDto(category);
     }
@@ -51,7 +51,7 @@ export class CategoriesController {
     })
     async findAllCategories(): Promise<CategoryDto[]> {
 
-        let categories: Category[] = await this.service.findAllCategories();
+        const categories: Category[] = await this.service.findAllCategories();
 
         return categories.map(c => new CategoryDto(c));
     }
@@ -71,7 +71,7 @@ export class CategoriesController {
     })
     async findCategoryById(@Param('id', ParseIntPipe) id: number): Promise<CategoryDto> {
 
-        let category: Category = await this.service.findCategoryById(id);
+        const category: Category = await this.service.findCategoryById(id);
 
         return new CategoryDto(category);
     }
@@ -101,7 +101,7 @@ export class CategoriesController {
     @Roles([ERole.ADMIN])
     async updateCategory(@Param('id', ParseIntPipe) id: number, @Body() data: UpdateCategoryDto): Promise<CategoryDto> {
 
-        let category: Category = await this.service.updateCategory(id, data);
+        const category: Category = await this.service.updateCategory(id, data);
 
         return new CategoryDto(category);
     }

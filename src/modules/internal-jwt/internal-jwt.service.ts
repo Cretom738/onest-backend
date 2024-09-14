@@ -25,6 +25,7 @@ export class InternalJwtService {
     }
 
     async generateTokenPairs(payload: IJwtPayload, deviceId: number) : Promise<{ refreshToken: string, accessToken: string, accessTokenId: number }> {
+        
         const accessTokenId = randomInt(999999);
 
         const [ accessToken, refreshToken ] = await Promise.all([

@@ -9,8 +9,6 @@ import { UpdateRegionDto } from './dtos/update-region.dto';
 import { RolesGuard } from 'src/libs/guards/roles.guard';
 import { ERole, Region } from '@prisma/client';
 import { Roles } from 'src/libs/decorators/roles.decorator';
-import { PaginatedRequestDto } from 'src/libs/dtos/paginated-request.dto';
-import { PaginatedResponseDto } from 'src/libs/dtos/paginated-response.dto';
 
 @Controller('regions')
 @ApiTags('Regions')
@@ -40,7 +38,7 @@ export class RegionsController {
     @Roles([ERole.ADMIN])
     async createRegion(@Body() data: CreateRegionDto): Promise<RegionDto> {
 
-        let region: Region = await this.service.createRegion(data);
+        const region: Region = await this.service.createRegion(data);
 
         return new RegionDto(region);
     }
@@ -53,7 +51,7 @@ export class RegionsController {
     })
     async findAllRegions(): Promise<RegionDto[]> {
 
-        let regions: Region[] = await this.service.findAllRegions();
+        const regions: Region[] = await this.service.findAllRegions();
 
         return regions.map(r => new RegionDto(r));
     }
@@ -73,7 +71,7 @@ export class RegionsController {
     })
     async findRegionById(@Param('id', ParseIntPipe) id: number): Promise<RegionDto> {
 
-        let region: Region = await this.service.findRegionById(id);
+        const region: Region = await this.service.findRegionById(id);
 
         return new RegionDto(region);
     }
@@ -103,7 +101,7 @@ export class RegionsController {
     @Roles([ERole.ADMIN])
     async updateRegion(@Param('id', ParseIntPipe) id: number, @Body() data: UpdateRegionDto): Promise<RegionDto> {
 
-        let region: Region = await this.service.updateRegion(id, data);
+        const region: Region = await this.service.updateRegion(id, data);
 
         return new RegionDto(region);
     }
