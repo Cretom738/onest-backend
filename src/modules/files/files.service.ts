@@ -8,8 +8,8 @@ import { Upload } from '@aws-sdk/lib-storage';
 @Injectable()
 export class FilesService implements IFilesService {
 
-    private logger: Logger = new Logger(FilesService.name);
-    private s3: S3;
+    private readonly logger: Logger = new Logger(FilesService.name);
+    private readonly s3: S3;
 
     constructor(
         private configService: ConfigService
