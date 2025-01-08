@@ -5,7 +5,7 @@ import { PrismaService } from 'src/libs/services/prisma.service';
 import { Session } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
 import { ArgonService } from 'src/libs/services/argon.service';
-import { PrismaClientKnownRequestError, PrismaClientUnknownRequestError } from '@prisma/client/runtime/library';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { Redis } from 'ioredis';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import { EJwtTokenTypes } from 'src/libs/types/type';
@@ -13,152 +13,190 @@ import { getBlacklistedTokenKey } from 'src/libs/helpers/helper';
 
 @Injectable()
 export class SessionsService implements ISessionsService {
+  private readonly logger: Logger = new Logger(SessionsService.name);
 
-    private readonly logger: Logger = new Logger(SessionsService.name); 
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly configService: ConfigService,
+    private readonly argon: ArgonService,
+    @InjectRedis() private readonly redis: Redis,
+  ) {}
 
-    constructor(
-        private readonly prisma: PrismaService,
-        private readonly configService: ConfigService,
-        private readonly argon: ArgonService,
-        @InjectRedis() private readonly redis: Redis
-    ) {}
+  async createSession({
+    userId,
+    deviceId,
+    refreshToken,
+    accessTokenId,
+  }: ISession): Promise<void> {
+    const userSessions: Session[] = await this.prisma.session.findMany({
+      where: {
+        userId,
+      },
+    });
 
-    async createSession({ userId, deviceId, refreshToken, accessTokenId }: ISession): Promise<void> {
+    if (
+      userSessions.length >=
+      parseInt(this.configService.get('USER_SESSION_LIMIT'))
+    ) {
+      await this.deleteSession(userSessions[0].deviceId);
 
-        const userSessions: Session[] = await this.prisma.session.findMany({
-            where: {
-                userId
-            }
-        });
-
-        if (userSessions.length >= parseInt(this.configService.get('USER_SESSION_LIMIT'))) {
-
-            await this.deleteSession(userSessions[0].deviceId);
-
-            this.logger.log(`Session limit reached, older session deleted for user ${userId}`);
-        }
-
-        await this.createNewSession({ userId, deviceId, refreshToken, accessTokenId });
-
-        this.logger.log(`New session created for user ${userId}`);
+      this.logger.log(
+        `Session limit reached, older session deleted for user ${userId}`,
+      );
     }
 
-    async updateSession({ userId, deviceId, refreshToken, accessTokenId }: ISession, oldAccessTokenId: number): Promise<void> {
+    await this.createNewSession({
+      userId,
+      deviceId,
+      refreshToken,
+      accessTokenId,
+    });
 
-        const hashedRefreshToken: string = await this.argon.hash(refreshToken);
+    this.logger.log(`New session created for user ${userId}`);
+  }
 
-        const { accessExpiredAt, refreshExpiredAt } = this.getExpirationDatePairs();
-        
-        let session: { id: number };
-        
-        try {
+  async updateSession(
+    { deviceId, refreshToken, accessTokenId }: ISession,
+    oldAccessTokenId: number,
+  ): Promise<void> {
+    const hashedRefreshToken: string = await this.argon.hash(refreshToken);
 
-            session = await this.prisma.session.update({
-                where: {
-                    deviceId
-                },
-                data: {
-                    refreshToken: hashedRefreshToken,
-                    expiredAt: refreshExpiredAt
-                },
-                select: {
-                    id: true
-                }
-            });
-            
-        } catch (error: any) {
-            
-            this.logger.error(error.message);
+    const { accessExpiredAt, refreshExpiredAt } = this.getExpirationDatePairs();
 
-            if (error instanceof PrismaClientKnownRequestError
-                && error.code === 'P2025') {
-                    
-                throw new UnauthorizedException('auth.session.expired.or.invalid.refresh.token');
-            }
-        }
+    let session: { id: number };
 
-        this.logger.log(`Session updated for device ${deviceId}`);
+    try {
+      session = await this.prisma.session.update({
+        where: {
+          deviceId,
+        },
+        data: {
+          refreshToken: hashedRefreshToken,
+          expiredAt: refreshExpiredAt,
+        },
+        select: {
+          id: true,
+        },
+      });
+    } catch (error: any) {
+      this.logger.error(error.message);
 
-        await this.prisma.sessionAccessToken.upsert({
-            where: {
-                sessionId: session.id
-            },
-            update: {
-                accessTokenId,
-                expiredAt: accessExpiredAt
-            },
-            create: {
-                accessTokenId,
-                sessionId: session.id,
-                expiredAt: accessExpiredAt
-            }
-        });
-
-        await Promise.all([
-            await this.blacklistToken(oldAccessTokenId, EJwtTokenTypes.ACCESS_TOKEN),
-            await this.blacklistToken(oldAccessTokenId, EJwtTokenTypes.REFRESH_TOKEN)
-        ]);
-        
-        this.logger.log(`New access token created for device ${deviceId}`);
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new UnauthorizedException(
+          'auth.session.expired.or.invalid.refresh.token',
+        );
+      }
     }
 
-    async deleteSession(deviceId: number): Promise<void> {
-        
-        const session = await this.prisma.session.delete({
-            where: {
-                deviceId
-            },
-            select: {
-                sessionAccessToken: true
-            }
-        });
+    this.logger.log(`Session updated for device ${deviceId}`);
 
-        if (session.sessionAccessToken) {
-            await Promise.all([
-                this.blacklistToken(session.sessionAccessToken.accessTokenId, EJwtTokenTypes.ACCESS_TOKEN),
-                this.blacklistToken(session.sessionAccessToken.accessTokenId, EJwtTokenTypes.REFRESH_TOKEN)
-            ]);
-        }
+    await this.prisma.sessionAccessToken.upsert({
+      where: {
+        sessionId: session.id,
+      },
+      update: {
+        accessTokenId,
+        expiredAt: accessExpiredAt,
+      },
+      create: {
+        accessTokenId,
+        sessionId: session.id,
+        expiredAt: accessExpiredAt,
+      },
+    });
+
+    await Promise.all([
+      this.blacklistToken(oldAccessTokenId, EJwtTokenTypes.ACCESS_TOKEN),
+      this.blacklistToken(oldAccessTokenId, EJwtTokenTypes.REFRESH_TOKEN),
+    ]);
+
+    this.logger.log(`New access token created for device ${deviceId}`);
+  }
+
+  async deleteSession(deviceId: number): Promise<void> {
+    const session = await this.prisma.session.delete({
+      where: {
+        deviceId,
+      },
+      select: {
+        sessionAccessToken: true,
+      },
+    });
+
+    if (session.sessionAccessToken) {
+      await Promise.all([
+        this.blacklistToken(
+          session.sessionAccessToken.accessTokenId,
+          EJwtTokenTypes.ACCESS_TOKEN,
+        ),
+        this.blacklistToken(
+          session.sessionAccessToken.accessTokenId,
+          EJwtTokenTypes.REFRESH_TOKEN,
+        ),
+      ]);
     }
+  }
 
-    private async createNewSession({ userId, deviceId, refreshToken, accessTokenId }: ISession): Promise<void> {
+  private async createNewSession({
+    userId,
+    deviceId,
+    refreshToken,
+    accessTokenId,
+  }: ISession): Promise<void> {
+    const hashedRefreshToken: string = await this.argon.hash(refreshToken);
 
-        const hashedRefreshToken: string = await this.argon.hash(refreshToken);
+    const { accessExpiredAt, refreshExpiredAt } = this.getExpirationDatePairs();
 
-        const { accessExpiredAt, refreshExpiredAt } = this.getExpirationDatePairs();
+    await this.prisma.session.create({
+      data: {
+        userId,
+        deviceId,
+        refreshToken: hashedRefreshToken,
+        expiredAt: refreshExpiredAt,
+        sessionAccessToken: {
+          create: {
+            accessTokenId,
+            expiredAt: accessExpiredAt,
+          },
+        },
+      },
+    });
+  }
 
-        await this.prisma.session.create({
-            data: {
-                userId,
-                deviceId,
-                refreshToken: hashedRefreshToken,
-                expiredAt: refreshExpiredAt,
-                sessionAccessToken: {
-                    create: {
-                        accessTokenId,
-                        expiredAt: accessExpiredAt
-                    }
-                }
-            }
-        });
-    }
+  private getExpirationDatePairs(): {
+    accessExpiredAt: Date;
+    refreshExpiredAt: Date;
+  } {
+    const currentTime: Date = new Date();
 
-    private getExpirationDatePairs(): { accessExpiredAt: Date, refreshExpiredAt: Date } {
+    const accessExpiredAt: Date = new Date(
+      currentTime.getTime() +
+        this.configService.get('ACCESS_TOKEN_LIFE_TIME') * 1000,
+    );
 
-        const currentTime: Date = new Date();
+    const refreshExpiredAt: Date = new Date(
+      currentTime.getTime() +
+        this.configService.get('REFRESH_TOKEN_LIFE_TIME') * 1000,
+    );
 
-        const accessExpiredAt: Date = new Date(currentTime.getTime() + this.configService.get('ACCESS_TOKEN_LIFE_TIME') * 1000);
+    return {
+      accessExpiredAt,
+      refreshExpiredAt,
+    };
+  }
 
-        const refreshExpiredAt: Date = new Date(currentTime.getTime() + this.configService.get('REFRESH_TOKEN_LIFE_TIME') * 1000);
-
-        return {
-            accessExpiredAt,
-            refreshExpiredAt
-        }
-    }
-
-    private async blacklistToken(tokenId: number, type: EJwtTokenTypes): Promise<void> {
-
-        await this.redis.set(getBlacklistedTokenKey(tokenId, type), tokenId, 'EX', this.configService.get('ACCESS_TOKEN_LIFE_TIME'));
-    }
+  private async blacklistToken(
+    tokenId: number,
+    type: EJwtTokenTypes,
+  ): Promise<void> {
+    await this.redis.set(
+      getBlacklistedTokenKey(tokenId, type),
+      tokenId,
+      'EX',
+      this.configService.get('ACCESS_TOKEN_LIFE_TIME'),
+    );
+  }
 }

@@ -1,8 +1,7 @@
 export interface IFile {
+  dataBuffer: Buffer;
 
-    dataBuffer: Buffer;
+  fileName: string;
 
-    fileName: string;
-
-    contentType: string;
+  contentType: string;
 }

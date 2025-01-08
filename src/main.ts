@@ -7,22 +7,26 @@ import { setupOpenApi } from './libs/config/swagger.config';
 import { NestApplication } from '@nestjs/core';
 
 async function bootstrap() {
+  const app = await NestFactory.create<NestApplication>(AppModule);
 
-    const app = await NestFactory.create<NestApplication>(AppModule);
+  const configService = app.get<ConfigService>(ConfigService);
 
-    const configService = app.get<ConfigService>(ConfigService);
-    
-    app.useGlobalFilters(new GlobalErrorFilter());
-  
-    app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true, transformOptions: { enableImplicitConversion: true } }));
-  
-    if (configService.get('NODE_ENV') !== 'production') {
-        
-        setupOpenApi(app);
-    }
-  
-    const port = configService.get('PORT');
-  
-    await app.listen(port);
+  app.useGlobalFilters(new GlobalErrorFilter());
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      transformOptions: { enableImplicitConversion: true },
+    }),
+  );
+
+  if (configService.get('NODE_ENV') !== 'production') {
+    setupOpenApi(app);
+  }
+
+  const port = configService.get('PORT');
+
+  await app.listen(port);
 }
 bootstrap();

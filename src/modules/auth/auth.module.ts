@@ -10,10 +10,15 @@ import { getJwtConfig } from 'src/libs/config/jwt.config';
 import { SessionsService } from 'src/modules/sessions/sessions.service';
 
 @Module({
-  imports: [
-    JwtModule.registerAsync(getJwtConfig())
-  ],
+  imports: [JwtModule.registerAsync(getJwtConfig())],
   controllers: [AuthController],
-  providers: [AuthService, UsersService, ArgonService, InternalJwtService, PrismaService, SessionsService]
+  providers: [
+    AuthService,
+    UsersService,
+    ArgonService,
+    InternalJwtService,
+    PrismaService,
+    SessionsService,
+  ],
 })
 export class AuthModule {}

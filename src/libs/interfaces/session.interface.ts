@@ -1,10 +1,9 @@
 export interface ISession {
+  userId: number;
 
-    userId: number;
+  deviceId: number;
 
-    deviceId: number;
+  refreshToken: string;
 
-    refreshToken: string;
-    
-    accessTokenId: number;
+  accessTokenId: number;
 }

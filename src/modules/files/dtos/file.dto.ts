@@ -1,12 +1,10 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty } from '@nestjs/swagger';
 
 export class FileDto {
+  @ApiProperty()
+  url: string;
 
-    @ApiProperty()
-    url: string;
-
-    constructor(url: string) {
-        
-        this.url = url;
-    }
+  constructor(url: string) {
+    this.url = url;
+  }
 }

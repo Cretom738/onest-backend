@@ -1,47 +1,47 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { ProfileWithRelatedTable } from "../../../libs/types/prisma.type";
-import { SocialMediaDto } from "./social-media.dto";
-import { UpdateProfileDto } from "./update-profile.dto";
-import { Prisma } from "@prisma/client";
+import { ApiProperty } from '@nestjs/swagger';
+import { ProfileWithRelatedTable } from '../../../libs/types/prisma.type';
+import { SocialMediaDto } from './social-media.dto';
+import { UpdateProfileDto } from './update-profile.dto';
+import { Prisma } from '@prisma/client';
 
 export class ProfileDto extends UpdateProfileDto {
-    
-    @ApiProperty()
-    readonly email: string;
-    
-    @ApiProperty()
-    readonly fullName: string;
-    
-    @ApiProperty()
-    readonly isEmailVerified: boolean;
+  @ApiProperty()
+  readonly email: string;
 
-    @ApiProperty()
-    readonly starsCount: Prisma.Decimal | 0;
+  @ApiProperty()
+  readonly fullName: string;
 
-    constructor(profile: ProfileWithRelatedTable, starsCount: Prisma.Decimal) {
+  @ApiProperty()
+  readonly isEmailVerified: boolean;
 
-        super();
+  @ApiProperty()
+  readonly starsCount: Prisma.Decimal | 0;
 
-        this.bio = profile.bio;
+  constructor(profile: ProfileWithRelatedTable, starsCount: Prisma.Decimal) {
+    super();
 
-        this.phone = profile.phone;
+    this.bio = profile.bio;
 
-        this.address = profile.address;
+    this.phone = profile.phone;
 
-        this.web = profile.web;
+    this.address = profile.address;
 
-        this.email = profile.user.email;
+    this.web = profile.web;
 
-        this.fullName = profile.user.fullName;
+    this.email = profile.user.email;
 
-        this.isEmailVerified = profile.user.isEmailVerified;
+    this.fullName = profile.user.fullName;
 
-        this.socialMedias = profile.socialMedias.map(sm => new SocialMediaDto(sm));
+    this.isEmailVerified = profile.user.isEmailVerified;
 
-        this.cityId = profile.cityId;
+    this.socialMedias = profile.socialMedias.map(
+      (sm) => new SocialMediaDto(sm),
+    );
 
-        this.avatarUrl = profile.avatarUrl;
+    this.cityId = profile.cityId;
 
-        this.starsCount = starsCount ?? 0;
-    }
+    this.avatarUrl = profile.avatarUrl;
+
+    this.starsCount = starsCount ?? 0;
+  }
 }

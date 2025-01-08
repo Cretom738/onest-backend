@@ -1,6 +1,5 @@
-import { IFile } from "src/libs/interfaces/file.interface";
+import { IFile } from 'src/libs/interfaces/file.interface';
 
 export interface IFilesService {
-
-    uploadFile(file: IFile): Promise<string>;
+  uploadFile(file: IFile): Promise<string>;
 }

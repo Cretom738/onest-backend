@@ -5,6 +5,6 @@ import { ArgonService } from 'src/libs/services/argon.service';
 import { PrismaService } from 'src/libs/services/prisma.service';
 
 @Module({
-  providers: [SessionsService, PrismaService, ConfigService, ArgonService]
+  providers: [SessionsService, PrismaService, ConfigService, ArgonService],
 })
 export class SessionsModule {}

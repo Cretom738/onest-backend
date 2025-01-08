@@ -1,13 +1,11 @@
 export enum EJwtTokenTypes {
+  ACCESS_TOKEN = 0,
 
-    ACCESS_TOKEN = 0,
-
-    REFRESH_TOKEN = 1
+  REFRESH_TOKEN = 1,
 }
 
 export enum ERequestType {
+  PUBLIC = 0,
 
-    PUBLIC = 0,
-
-    PRIVATE = 1
+  PRIVATE = 1,
 }

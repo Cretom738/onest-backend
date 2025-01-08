@@ -1,10 +1,9 @@
-import { ISession } from "src/libs/interfaces/session.interface";
+import { ISession } from 'src/libs/interfaces/session.interface';
 
 export interface ISessionsService {
+  createSession(data: ISession): Promise<void>;
 
-    createSession(data: ISession): Promise<void>;
+  updateSession(data: ISession, oldAccessTokenId: number): Promise<void>;
 
-    updateSession(data: ISession, oldAccessTokenId: number): Promise<void>;
-    
-    deleteSession(deviceId: number): Promise<void>;
+  deleteSession(deviceId: number): Promise<void>;
 }

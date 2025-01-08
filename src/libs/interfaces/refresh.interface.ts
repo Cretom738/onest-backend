@@ -1,4 +1,3 @@
 export interface IRefresh {
-    
-    refreshToken: string;
+  refreshToken: string;
 }

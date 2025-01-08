@@ -1,5 +1,11 @@
 import { Body, Controller, Get, Patch, UseGuards } from '@nestjs/common';
-import { ApiBadRequestResponse, ApiBearerAuth, ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiOkResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { UserInfo } from 'src/libs/decorators/user-info.decorator';
 import { IJwtPayload } from 'src/libs/interfaces/jwt-payload.interface';
 import { UsersService } from './users.service';
@@ -15,42 +21,47 @@ import { UpdateProfileDto } from 'src/modules/users/dtos/update-profile.dto';
 @ApiBearerAuth('Authorization')
 @UseGuards(AuthGuard)
 export class UsersController {
+  constructor(private readonly service: UsersService) {}
 
-    constructor(private readonly service: UsersService) {}
+  @Get('profile')
+  @ApiOkResponse({
+    description: 'Get user profile',
+    type: ProfileDto,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unathorized',
+    type: CommonErrorDto,
+  })
+  async getUserProfile(
+    @UserInfo() { userId, profileId }: IJwtPayload,
+  ): Promise<ProfileDto> {
+    const [profile, averageStarCount] = await this.service.getUserProfile(
+      userId,
+      profileId,
+    );
 
-    @Get('profile')
-    @ApiOkResponse({
-        description: 'Get user profile',
-        type: ProfileDto
-    })
-    @ApiUnauthorizedResponse({
-        description: 'Unathorized',
-        type: CommonErrorDto
-    })
-    async getUserProfile(@UserInfo() { userId, profileId }: IJwtPayload): Promise<ProfileDto> {
+    return new ProfileDto(profile, averageStarCount._avg.starCount);
+  }
 
-        const [ profile, averageStarCount ] = await this.service.getUserProfile(userId, profileId);
+  @Patch('profile')
+  @ApiOkResponse({
+    description: 'Update user profile',
+    type: ProfileDto,
+  })
+  @ApiBadRequestResponse({
+    description: 'Validation error',
+    type: BadRequestDto,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unathorized',
+    type: CommonErrorDto,
+  })
+  async updateUserProfile(
+    @UserInfo() { userId }: IJwtPayload,
+    @Body() data: UpdateProfileDto,
+  ): Promise<SuccessDto> {
+    await this.service.updateUserProfile(userId, data);
 
-        return new ProfileDto(profile, averageStarCount._avg.starCount);
-    }
-
-    @Patch('profile') 
-    @ApiOkResponse({
-        description: 'Update user profile',
-        type: ProfileDto
-    })
-    @ApiBadRequestResponse({
-        description: 'Validation error',
-        type: BadRequestDto
-    })
-    @ApiUnauthorizedResponse({
-        description: 'Unathorized',
-        type: CommonErrorDto
-    })
-    async updateUserProfile(@UserInfo() { userId }: IJwtPayload, @Body() data: UpdateProfileDto): Promise<SuccessDto> {
-
-        await this.service.updateUserProfile(userId, data);
-
-        return new SuccessDto();
-    }
+    return new SuccessDto();
+  }
 }

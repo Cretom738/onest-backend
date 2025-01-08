@@ -2,7 +2,6 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { IAuthService } from './auth';
 import { AuthDto } from 'src/modules/auth/dtos/auth.dto';
 import { CreateUserDto } from 'src/modules/users/dtos/create-user.dto';
-import { IRefresh } from 'src/libs/interfaces/refresh.interface';
 import { AuthSuccessDto } from 'src/modules/auth/dtos/auth-success.dto';
 import { UsersService } from '../users/users.service';
 import { ArgonService } from 'src/libs/services/argon.service';
@@ -13,89 +12,115 @@ import { EJwtTokenTypes } from 'src/libs/types/type';
 
 @Injectable()
 export class AuthService implements IAuthService {
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly argon: ArgonService,
+    private readonly jwt: InternalJwtService,
+    private readonly sessionsService: SessionsService,
+  ) {}
 
-    constructor(
-        private readonly usersService: UsersService,
-        private readonly argon: ArgonService,
-        private readonly jwt: InternalJwtService,
-        private readonly sessionsService: SessionsService
-    ) {}
+  async register({
+    email,
+    fullName,
+    password,
+  }: CreateUserDto): Promise<AuthSuccessDto> {
+    const hashedPassword: string = await this.argon.hash(password);
 
-    async register({ email, fullName, password }: CreateUserDto): Promise<AuthSuccessDto> {
+    const { id, roles, profileId } = await this.usersService.createUser({
+      email,
+      fullName,
+      password: hashedPassword,
+    });
 
-        const hashedPassword: string = await this.argon.hash(password);
+    const deviceId = randomInt(999999);
 
-        const { id, roles, profileId } = await this.usersService.createUser({
-            email,
-            fullName,
-            password: hashedPassword,
-        });
+    const { accessToken, refreshToken, accessTokenId } =
+      await this.jwt.generateTokenPairs(
+        { userId: id, roles, profileId },
+        deviceId,
+      );
 
-        const deviceId = randomInt(999999);
+    await this.sessionsService.createSession({
+      userId: id,
+      deviceId,
+      refreshToken,
+      accessTokenId,
+    });
 
-        const { accessToken, refreshToken, accessTokenId } = await this.jwt.generateTokenPairs({ userId: id, roles, profileId }, deviceId);
+    return {
+      accessToken,
+      refreshToken,
+    };
+  }
 
-        await this.sessionsService.createSession({  
-            userId: id,
-            deviceId,
-            refreshToken,
-            accessTokenId
-        });
+  async login({ email, password }: AuthDto): Promise<AuthSuccessDto> {
+    const { id, roles, hashedPassword, profileId } =
+      await this.usersService.findUserByEmail(email);
 
-        return {
-            accessToken,
-            refreshToken
-        }
+    const isPasswordValid = await this.argon.compare(password, hashedPassword);
+
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('auth.invalid.credentials');
     }
 
-    async login({ email, password }: AuthDto): Promise<AuthSuccessDto> {
+    const deviceId = randomInt(999999);
 
-        const { id, roles, hashedPassword, profileId } = await this.usersService.findUserByEmail(email);
+    const { accessToken, refreshToken, accessTokenId } =
+      await this.jwt.generateTokenPairs(
+        { userId: id, roles, profileId },
+        deviceId,
+      );
 
-        const isPasswordValid = await this.argon.compare(password, hashedPassword);
+    await this.sessionsService.createSession({
+      userId: id,
+      deviceId,
+      refreshToken,
+      accessTokenId,
+    });
 
-        if (!isPasswordValid) {
-            
-            throw new UnauthorizedException('auth.invalid.credentials');
-        }
+    return {
+      accessToken,
+      refreshToken,
+    };
+  }
 
-        const deviceId = randomInt(999999);
+  async logout(deviceId: number): Promise<void> {
+    await this.sessionsService.deleteSession(deviceId);
+  }
 
-        const { accessToken, refreshToken, accessTokenId } = await this.jwt.generateTokenPairs({ userId: id, roles, profileId }, deviceId);
-        
-        await this.sessionsService.createSession({  
-            userId: id,
-            deviceId,
-            refreshToken,
-            accessTokenId
-        });
+  async refresh(incomingRefreshToken: string): Promise<AuthSuccessDto> {
+    const { isTokenValid, payload } = await this.jwt.verifyToken(
+      incomingRefreshToken,
+      EJwtTokenTypes.REFRESH_TOKEN,
+    );
 
-        return {
-            accessToken,
-            refreshToken
-        }
+    if (!isTokenValid) {
+      throw new UnauthorizedException('auth.session.expired.or.invalid.token');
     }
 
-    async logout(deviceId: number): Promise<void> {
+    const { refreshToken, accessToken, accessTokenId } =
+      await this.jwt.generateTokenPairs(
+        {
+          userId: payload.userId,
+          roles: payload.roles,
+          profileId: payload.profileId,
+        },
+        payload.deviceId,
+      );
 
-        await this.sessionsService.deleteSession(deviceId);
-    }
+    await this.sessionsService.updateSession(
+      {
+        userId: payload.userId,
+        deviceId: payload.deviceId,
+        refreshToken,
+        accessTokenId,
+      },
+      payload.accessTokenId,
+    );
 
-    async refresh(incomingRefreshToken: string): Promise<AuthSuccessDto> {
-
-        const { isTokenValid, payload } = await this.jwt.verifyToken(incomingRefreshToken, EJwtTokenTypes.REFRESH_TOKEN);
-        
-        if (!isTokenValid) {
-            throw new UnauthorizedException('auth.session.expired.or.invalid.token');
-        }
-
-        const { refreshToken, accessToken, accessTokenId } = await this.jwt.generateTokenPairs({ userId: payload.userId, roles: payload.roles, profileId: payload.profileId }, payload.deviceId);
-
-        await this.sessionsService.updateSession({ userId: payload.userId, deviceId: payload.deviceId, refreshToken, accessTokenId }, payload.accessTokenId);
-
-        return {
-            refreshToken,
-            accessToken
-        }
-    }
+    return {
+      refreshToken,
+      accessToken,
+    };
+  }
 }

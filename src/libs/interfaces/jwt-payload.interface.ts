@@ -2,16 +2,15 @@ import { ERole } from '.prisma/client';
 import { EJwtTokenTypes } from '../types/type';
 
 export interface IJwtPayload {
+  deviceId?: number;
 
-    deviceId?: number;
+  userId: number;
 
-    userId: number;
+  profileId: number;
 
-    profileId: number;
+  accessTokenId?: number;
 
-    accessTokenId?: number;
+  roles: ERole[];
 
-    roles: ERole[];
-
-    type?: EJwtTokenTypes;
+  type?: EJwtTokenTypes;
 }

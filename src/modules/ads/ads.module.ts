@@ -5,6 +5,6 @@ import { PrismaService } from 'src/libs/services/prisma.service';
 
 @Module({
   controllers: [AdsController],
-  providers: [AdsService, PrismaService]
+  providers: [AdsService, PrismaService],
 })
 export class AdsModule {}
